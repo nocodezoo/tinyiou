@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyIOU | Auth Lab v1.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; padding: 40px; }
+        .lab-card { background: white; border-radius: 2.5rem; padding: 2.5rem; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; margin-bottom: 2rem; }
+        .btn-lab { @apply w-full p-4 rounded-xl font-black transition-all active:scale-95 mb-4 flex items-center justify-center gap-3 border-none cursor-pointer; }
+        .status-badge { @apply bg-green-100 text-green-700 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest mt-4 inline-block; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect, createElement: h } = React;
+        const client = supabase.createClient('https://cijsxlylkanxmzkteabg.supabase.co', 'sb_publishable_cOcjpEDxsX7EH-5cm0ByxA_OqbizsX4');
+        const REDIRECT_URL = window.location.origin + window.location.pathname;
+
+        function AuthLab() {
+            const [user, setUser] = useState(null);
+            const [profile, setProfile] = useState(null);
+            const [view, setView] = useState('lab');
+
+            useEffect(() => {
+                client.auth.getSession().then(({ data }) => {
+                    setUser(data.session?.user);
+                });
+                client.auth.onAuthStateChange((_, s) => setUser(s?.user));
+            }, []);
+
+            useEffect(() => {
+                if (user) {
+                    client.from('profiles').select('*').eq('id', user.id).single().then(({data}) => setProfile(data));
+                }
+            }, [user]);
+
+            // METHOD 1: GOOGLE DIRECT
+            const loginGoogleDirect = () => {
+                client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: REDIRECT_URL } });
+            };
+
+            // METHOD 2: GOOGLE WITH ACCOUNT SELECT
+            const loginGoogleSelect = () => {
+                client.auth.signInWithOAuth({ 
+                    provider: 'google', 
+                    options: { redirectTo: REDIRECT_URL, queryParams: { prompt: 'select_account' } } 
+                });
+            };
+
+            // METHOD 3: MAGIC LINK (Email based)
+            const loginMagicLink = async () => {
+                const email = prompt("Enter Email for Magic Link:");
+                if (email) await client.auth.signInWithOtp({ email, options: { emailRedirectTo: REDIRECT_URL } });
+            };
+
+            // METHOD 4: PASSWORD OVERRIDE (Manual)
+            const loginPassword = async () => {
+                const email = prompt("Email:");
+                const password = prompt("Password:");
+                if (email && password) await client.auth.signInWithPassword({ email, password });
+            };
+
+            if (user) {
+                return h('div', { className: "max-w-md mx-auto text-center" }, [
+                    h('div', { className: "lab-card" }, [
+                        h('h2', { className: "text-2xl font-black mb-4" }, "Identity Verified"),
+                        h('p', { className: "text-slate-500 mb-6" }, `Logged in as: ${user.email}`),
+                        profile?.username && h('div', { className: "status-badge" }, `@${profile.username}`),
+                        h('button', { 
+                            onClick: () => client.auth.signOut().then(() => window.location.reload()),
+                            className: "btn-lab bg-red-500 text-white mt-8"
+                        }, "Relinquish Identity")
+                    ])
+                ]);
+            }
+
+            return h('div', { className: "max-w-md mx-auto" }, [
+                h('h1', { className: "text-3xl font-black mb-8 uppercase tracking-tighter" }, "Auth Logic Lab"),
+                
+                h('div', { className: "lab-card" }, [
+                    h('p', { className: "text-xs font-black uppercase text-slate-400 mb-6 tracking-widest" }, "Select Authentication Engine"),
+                    
+                    h('button', { onClick: loginGoogleDirect, className: "btn-lab bg-slate-900 text-white" }, "1. Google Direct"),
+                    
+                    h('button', { onClick: loginGoogleSelect, className: "btn-lab bg-[#0052ff] text-white" }, "2. Google (Force Select)"),
+                    
+                    h('button', { onClick: loginMagicLink, className: "btn-lab bg-white border-2 border-slate-200 text-slate-900" }, "3. Email Magic Link"),
+                    
+                    h('button', { onClick: loginPassword, className: "btn-lab bg-orange-500 text-white" }, "4. Email + Password")
+                ]),
+
+                h('div', { className: "text-center text-[10px] font-black uppercase tracking-[0.3em] text-slate-300" }, "TinyIOU Protocol Verification")
+            ]);
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(h(AuthLab));
+    </script>
+</body>
+</html>

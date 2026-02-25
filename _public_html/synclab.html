@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyIOU | Twin Soul Sync Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 overflow-hidden h-screen flex flex-col">
+    <div class="p-6 border-b border-slate-800 bg-slate-950 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-black text-white uppercase tracking-tighter">Twin Soul Sync Lab</h1>
+            <p class="text-slate-400 text-xs font-bold uppercase">vcook <i class="ph-bold ph-arrows-left-right mx-2"></i> paparye625</p>
+        </div>
+        <div class="flex gap-4">
+            <button onclick="document.getElementById('p1').src='/chat.html'; document.getElementById('p1').contentWindow.location.reload();" class="text-[10px] font-black uppercase text-white bg-slate-800 px-4 py-2 rounded-lg hover:bg-slate-700">Hard Restart Left</button>
+            <button onclick="document.getElementById('p2').src='/chat.html'; document.getElementById('p2').contentWindow.location.reload();" class="text-[10px] font-black uppercase text-white bg-slate-800 px-4 py-2 rounded-lg hover:bg-slate-700">Hard Restart Right</button>
+        </div>
+    </div>
+
+    <div class="flex-1 flex bg-slate-800 gap-1">
+        <div class="flex-1 bg-white relative">
+            <div class="absolute top-4 right-4 z-50 bg-black/80 text-white px-3 py-1 rounded-full text-[10px] font-black pointer-events-none">SOUL A: vcook</div>
+            <iframe id="p1" src="/chat.html" class="w-full h-full border-none"></iframe>
+        </div>
+        <div class="flex-1 bg-white relative">
+            <div class="absolute top-4 right-4 z-50 bg-black/80 text-white px-3 py-1 rounded-full text-[10px] font-black pointer-events-none">SOUL B: paparye625</div>
+            <iframe id="p2" src="/chat.html" class="w-full h-full border-none"></iframe>
+        </div>
+    </div>
+
+    <div class="bg-blue-600 p-4 text-white text-center">
+        <p class="text-sm font-black italic">"Login as <b>vcook</b> on the Left / Login as <b>paparye625</b> on the Right. Then link their handles."</p>
+    </div>
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</body>
+</html>

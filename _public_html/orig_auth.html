@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TinyIOU | Access Realm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.1/duotone/style.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* VERSION 30.57: PREMIUM FINTECH LOGIN REDESIGN */
+        :root {
+            --primary: #0f1419;
+            --blue: #0052ff;
+            --orange: #f97316;
+            --bg: #f8fafc;
+        }
+
+        body { 
+            background-color: var(--bg); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100dvh; 
+            margin: 0; 
+            padding: 20px; 
+            color: var(--primary);
+        }
+
+        .auth-card { 
+            background: white; 
+            width: 100%; 
+            max-width: 480px; 
+            border-radius: 4rem; 
+            padding: 3.5rem; 
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.1); 
+            border: 1px solid #ebf1f5;
+            position: relative; 
+            text-align: center;
+        }
+
+        .logo-mark { 
+            width: 70px; height: 70px; 
+            background: var(--blue); 
+            border-radius: 1.8rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-family: 'Outfit'; 
+            font-weight: 900; 
+            font-size: 2.5rem; 
+            margin: 0 auto 2.5rem; 
+            box-shadow: 0 15px 30px rgba(0,82,255,0.2);
+            rotate: -10deg;
+        }
+
+        .input-premium { 
+            @apply w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl p-5 text-center font-bold text-lg outline-none transition-all mb-4; 
+        }
+
+        .btn-fintech { 
+            @apply w-full p-5 rounded-full font-black text-[11px] uppercase tracking-[0.2em] transition-all active:scale-95 mb-4 flex items-center justify-center gap-3 border-none cursor-pointer; 
+        }
+        
+        .btn-primary-blue { background: var(--blue); color: white; shadow-lg shadow-blue-100; }
+        .btn-outline { background: white; border: 2px solid #f1f5f9 !important; color: #64748b; }
+        .btn-outline:hover { border-color: var(--blue) !important; color: var(--blue); }
+
+        .divider { @apply flex items-center my-8; }
+        .divider-line { @apply flex-1 h-px bg-slate-100; }
+        .divider-text { @apply px-4 text-[10px] font-black text-slate-300 uppercase tracking-widest; }
+
+        .footer-link { @apply text-[10px] font-black uppercase text-slate-400 tracking-widest hover:text-blue-500 cursor-pointer transition-colors; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect, createElement: h } = React;
+        const client = supabase.createClient('https://cijsxlylkanxmzkteabg.supabase.co', 'sb_publishable_cOcjpEDxsX7EH-5cm0ByxA_OqbizsX4');
+        const REDIRECT_URL = window.location.origin + '/';
+
+        function AuthPortal() {
+            const [mode, setMode] = useState('login'); // login, signup, magic, password
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const handleLogin = async (e) => {
+                if (e) e.preventDefault();
+                setLoading(true);
+                const { error } = await client.auth.signInWithPassword({ email, password });
+                if (error) alert(error.message);
+                else window.location.href = '/';
+                setLoading(false);
+            };
+
+            const handleMagicLink = async () => {
+                const em = prompt("Destination Email:");
+                if (!em) return;
+                setLoading(true);
+                const { error } = await client.auth.signInWithOtp({ 
+                    email: em, 
+                    options: { emailRedirectTo: REDIRECT_URL } 
+                });
+                if (error) alert(error.message);
+                else alert("Magic Link Dispatched.");
+                setLoading(false);
+            };
+
+            const loginGoogle = (promptVal) => {
+                client.auth.signInWithOAuth({ 
+                    provider: 'google', 
+                    options: { 
+                        redirectTo: REDIRECT_URL, 
+                        queryParams: promptVal ? { prompt: 'select_account' } : {} 
+                    } 
+                });
+            };
+
+            return h('div', { className: "auth-card animate__animated animate__fadeIn" }, [
+                h('div', {className: 'logo-mark', onClick: () => window.location.href='/'}, 'i'),
+                h('h2', { className: "text-3xl font-black mb-10 text-center uppercase italic tracking-tighter" }, 
+                    mode === 'login' ? 'Access Realm' : 'Claim Identity'
+                ),
+                
+                /* GOOGLE ENGINES */
+                h('button', { onClick: () => loginGoogle(false), className: "btn-fintech btn-outline" }, [
+                    h('i', {className: 'ph-fill ph-google-logo text-xl'}),
+                    "Google Direct"
+                ]),
+                h('button', { onClick: () => loginGoogle(true), className: "btn-fintech btn-outline" }, [
+                    h('i', {className: 'ph-bold ph-users-three text-xl'}),
+                    "Google Select"
+                ]),
+
+                h('div', {className: 'divider'}, [
+                    h('div', {className: 'divider-line'}),
+                    h('span', {className: 'divider-text'}, 'Auth Protocol'),
+                    h('div', {className: 'divider-line'})
+                ]),
+
+                /* MANUAL ENGINES */
+                h('div', {className: 'space-y-4'}, [
+                    h('input', { className: "input-premium", type: "email", placeholder: "Email", value: email, onChange: e => setEmail(e.target.value) }),
+                    h('input', { className: "input-premium", type: "password", placeholder: "Secret Code", value: password, onChange: e => setPassword(e.target.value) }),
+                    h('button', { onClick: handleLogin, className: "btn-fintech btn-primary-blue mt-4", disabled: loading }, 
+                        loading ? 'Syncing...' : 'Enter Ledger'
+                    ),
+                    h('button', { onClick: handleMagicLink, className: "btn-fintech btn-outline" }, [
+                        h('i', {className: 'ph-bold ph-magic-wand text-xl'}),
+                        "Email Magic Link"
+                    ])
+                ]),
+
+                h('div', {className: 'flex justify-center gap-8 mt-12'}, [
+                    h('span', { onClick: () => alert("Logic Shared with Home Screen Register Flow."), className: 'footer-link' }, 'Register'),
+                    h('span', { onClick: () => window.location.href='/', className: 'footer-link' }, 'Cancel')
+                ])
+            ]);
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(h(AuthPortal));
+    </script>
+</body>
+</html>

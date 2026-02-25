@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TinyIOU | Admin Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <style>
+        :root { --primary: #f97316; --bg: #0f1419; }
+        body { background-color: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+        .admin-card { background: #1d232a; border: 1px solid #2d353f; border-radius: 1.5rem; transition: all 0.3s; }
+        .hero-title { font-family: 'Outfit', sans-serif; @apply font-black tracking-tighter uppercase; font-size: 4rem; background: linear-gradient(135deg, #fff 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-delete { background: #ef4444; color: white; font-weight: 800; padding: 0.5rem 1rem; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-delete:hover { background: #dc2626; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        const { useState, useEffect, createElement: h } = React;
+        const SUPABASE_URL = 'https://cijsxlylkanxmzkteabg.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_cOcjpEDxsX7EH-5cm0ByxA_OqbizsX4';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const SUPABASE_HEADERS = {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`
+        };
+
+        function AdminApp() {
+            const [session, setSession] = useState(null);
+            const [ious, setIous] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [passcode, setPasscode] = useState('');
+            const [isAuthorized, setIsAuthorized] = useState(false);
+            const [selectedIds, setSelectedIds] = useState([]);
+
+            // v24.3: UPDATED ADMIN ACCESS
+            const ADMIN_EMAIL = 'crypt125@protonmail.com';
+            const ADMIN_PASS = '9546658888';
+
+            useEffect(() => {
+                const checkAuth = async () => {
+                    const { data } = await client.auth.getSession();
+                    setSession(data.session);
+                };
+                checkAuth();
+                client.auth.onAuthStateChange((_e, s) => setSession(s));
+            }, []);
+
+            useEffect(() => {
+                if (session?.user?.email === ADMIN_EMAIL && isAuthorized) {
+                    fetchIOUs();
+                }
+            }, [session, isAuthorized]);
+
+            const fetchIOUs = async () => {
+                setLoading(true);
+                const { data } = await client.from('ious').select('*, creator:creator_id(username), receiver:receiver_id(username)').order('created_at', { ascending: false });
+                setIous(data || []);
+                setSelectedIds([]);
+                setLoading(false);
+            };
+
+            const toggleSelect = (id) => {
+                setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+            };
+
+            const toggleSelectAll = () => {
+                setSelectedIds(selectedIds.length === ious.length ? [] : ious.map(i => i.id));
+            };
+
+            const deleteIOU = async (id) => {
+                if (!confirm("Permanent deletion from the ledger?")) return;
+                
+                try {
+                    const { error } = await client.from('ious').delete().eq('id', id);
+                    if (error) {
+                        // Fallback attempt with RPC if defined
+                        const { error: rpcError } = await client.rpc('admin_delete_iou', { target_id: id });
+                        if (rpcError) alert("Database Policy Rejection: Ensure " + ADMIN_EMAIL + " has DELETE permission.");
+                        else fetchIOUs();
+                    } else {
+                        fetchIOUs();
+                    }
+                } catch (err) { console.error("Delete crash:", err); }
+            };
+
+            const deleteSelected = async () => {
+                if (selectedIds.length === 0) return;
+                if (!confirm(`Permanently remove ${selectedIds.length} posts from the ledger?`)) return;
+                
+                try {
+                    const { error } = await client.from('ious').delete().in('id', selectedIds);
+                    if (error) {
+                        const { error: rpcError } = await client.rpc('admin_mass_delete_ious', { target_ids: selectedIds });
+                        if (rpcError) alert("Bulk Policy Rejection.");
+                        else fetchIOUs();
+                    } else {
+                        fetchIOUs();
+                    }
+                } catch (err) { console.error("Mass delete crash:", err); }
+            };
+
+            if (!session) {
+                return h('div', { className: "flex flex-col items-center justify-center min-h-screen p-10 text-center" },
+                    h('h1', { className: "hero-title mb-8" }, "Admin Access"),
+                    h('p', { className: "text-gray-400 mb-10" }, "Identity verification required."),
+                    h('button', { onClick: () => window.location.href = '/', className: "px-8 py-4 bg-white text-black font-black rounded-xl uppercase italic border-none cursor-pointer" }, "Identify Login")
+                );
+            }
+
+            if (session.user.email !== ADMIN_EMAIL) {
+                return h('div', { className: "flex flex-col items-center justify-center min-h-screen p-10 text-center" },
+                    h('h1', { className: "hero-title mb-8" }, "Access Denied"),
+                    h('p', { className: "text-red-500 mb-4 font-bold" }, `Logged in as: ${session.user.email}`),
+                    h('p', { className: "text-gray-400 mb-10" }, `Only ${ADMIN_EMAIL} can access this console.`),
+                    h('button', { onClick: () => client.auth.signOut(), className: "px-8 py-4 bg-orange-600 text-white font-black rounded-xl uppercase italic border-none cursor-pointer" }, "Logout & Switch Account")
+                );
+            }
+
+            if (!isAuthorized) {
+                return h('div', { className: "flex flex-col items-center justify-center min-h-screen p-10 text-center" },
+                    h('h1', { className: "hero-title mb-8" }, "Secure Code"),
+                    h('input', { 
+                        type: "password", 
+                        placeholder: "Enter Code", 
+                        value: passcode, 
+                        onChange: e => setPasscode(e.target.value),
+                        onKeyDown: e => e.key === 'Enter' && (passcode === ADMIN_PASS ? setIsAuthorized(true) : alert("Invalid Code")),
+                        className: "bg-gray-800 border-none p-6 text-4xl text-center rounded-2xl w-64 mb-8 outline-none focus:ring-2 ring-orange-500"
+                    }),
+                    h('button', { 
+                        onClick: () => passcode === ADMIN_PASS ? setIsAuthorized(true) : alert("Invalid Code"),
+                        className: "px-10 py-5 bg-orange-600 text-white font-black rounded-xl uppercase border-none cursor-pointer" 
+                    }, "Authorize")
+                );
+            }
+
+            return h('div', { className: "p-6 md:p-20 max-w-7xl mx-auto" },
+                h('div', { className: "flex justify-between items-center mb-10" },
+                    h('h1', { className: "hero-title" }, "Moderation Console"),
+                    h('div', { className: "text-right" },
+                        h('p', { className: "text-orange-500 font-black" }, "Admin: Ryan"),
+                        h('button', { onClick: () => client.auth.signOut(), className: "text-xs text-gray-500 underline border-none bg-transparent cursor-pointer" }, "Exit Console")
+                    )
+                ),
+                
+                !loading && ious.length > 0 && h('div', { className: "sticky top-4 z-[100] mb-8 p-6 bg-[#1d232a]/90 backdrop-blur-xl border border-orange-500/30 rounded-2xl flex items-center justify-between shadow-2xl" },
+                    h('div', { className: "flex items-center gap-6" },
+                        h('input', { 
+                            type: 'checkbox', 
+                            checked: selectedIds.length === ious.length && ious.length > 0, 
+                            onChange: toggleSelectAll,
+                            className: "w-6 h-6 rounded cursor-pointer accent-orange-500" 
+                        }),
+                        h('span', { className: "font-black text-sm uppercase tracking-widest" }, 
+                            selectedIds.length > 0 ? `${selectedIds.length} Selected` : "Select All"
+                        )
+                    ),
+                    selectedIds.length > 0 && h('button', { 
+                        onClick: deleteSelected, 
+                        className: "btn-delete !bg-red-600 !px-8 !py-3 hover:!bg-red-500 text-sm italic" 
+                    }, "Mass Purge Ledger")
+                ),
+
+                loading ? h('div', { className: "text-center p-20 animate-pulse text-2xl font-black uppercase text-gray-700" }, "Scanning Ledger...") :
+                h('div', { className: "grid gap-6" }, ious.map(iou => h('div', { key: iou.id, className: `admin-card p-8 flex items-start justify-between gap-10 ${selectedIds.includes(iou.id) ? 'ring-2 ring-orange-500 border-transparent bg-orange-500/5' : ''}` },
+                    h('div', { className: "flex items-start gap-6 flex-1" },
+                        h('input', { 
+                            type: 'checkbox', 
+                            checked: selectedIds.includes(iou.id), 
+                            onChange: () => toggleSelect(iou.id),
+                            className: "w-6 h-6 mt-1 rounded cursor-pointer accent-orange-500" 
+                        }),
+                        h('div', { className: "flex-1" },
+                            h('div', { className: "flex items-center gap-4 mb-4" },
+                                h('span', { className: "text-orange-500 font-black text-sm uppercase" }, `@${iou.creator?.username || 'unknown'}`),
+                                h('span', { className: "text-gray-600" }, "→"),
+                                h('span', { className: "text-white font-black text-sm uppercase" }, `@${iou.receiver?.username || 'unknown'}`)
+                            ),
+                            h('p', { className: "italic text-gray-300 text-lg mb-6 leading-relaxed" }, iou.narrative),
+                            h('p', { className: "text-[10px] text-gray-600 font-bold uppercase tracking-widest" }, `ID: ${iou.id} • Posted: ${new Date(iou.created_at).toLocaleString()}`)
+                        )
+                    ),
+                    iou.media_urls?.[0] && h('div', { className: "w-48 h-48 rounded-xl overflow-hidden border border-gray-700 bg-black flex-shrink-0" },
+                        (iou.media_urls[0].toLowerCase().includes('.webm') || iou.media_urls[0].toLowerCase().includes('.mp4') || iou.media_urls[0].includes('v_')) ?
+                        h('video', { src: iou.media_urls[0], className: "w-full h-full object-cover", autoPlay: true, muted: true, loop: true, playsInline: true }) :
+                        h('img', { src: iou.media_urls[0], className: "w-full h-full object-cover" })
+                    ),
+                    h('button', { onClick: () => deleteIOU(iou.id), className: "btn-delete self-center" }, "Remove")
+                )))
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(h(AdminApp));
+    </script>
+</body>
+</html>

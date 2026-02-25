@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TinyIOU | The Social Ledger of Light</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.1/duotone/style.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <style>
+        /* VERSION 30.10: FINAL MASTER HYBRID (BASE + CENTERED VIBRANT DASH) */
+        :root {
+            --primary: #f97316;
+            --primary-light: #fb923c;
+            --bg: #f7f9f9;
+            --card-bg: #ffffff;
+            --border: #eff3f4;
+            --text-main: #0f1419;
+            --text-muted: #536471;
+            --base-font: 16px;
+        }
+
+        html { background-color: var(--bg); scroll-behavior: smooth; }
+
+        body { 
+            background-color: var(--bg); color: var(--text-main); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-font-smoothing: antialiased; 
+            margin: 0; padding: 0; 
+        }
+        
+        .hero-banner { @apply flex flex-col items-center justify-center text-center p-8 md:p-20 relative bg-white; min-height: 60vh; z-index: 10; pointer-events: auto; }
+        
+        .hero-title { 
+            font-family: 'Outfit', sans-serif; @apply font-black tracking-tighter uppercase mb-6;
+            font-size: clamp(3.5rem, 12vw, 10rem); line-height: 0.85;
+            background: linear-gradient(135deg, #0f1419 0%, #f97316 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            position: relative; z-index: 20;
+        }
+
+        .hero-subtitle { @apply flex flex-col items-center justify-center text-center; position: relative; z-index: 20; }
+        .hero-sub-text {
+            @apply flex flex-col items-center justify-center text-center px-8 py-2;
+            position: relative; z-index: 20;
+            color: #0f1419;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 400;
+            font-style: italic;
+            letter-spacing: -0.02em;
+            display: block;
+            margin-top: 1rem;
+            font-size: clamp(1.5rem, 5vw, 4rem);
+            line-height: 1.2;
+        }
+
+        .modal-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); }
+        .modal-body { 
+            background: white; width: 100%; max-width: 65rem; border-radius: 3.5rem; 
+            padding: 3.5rem; position: relative; overflow-y: auto; max-height: 90vh;
+            box-shadow: 0 50px 120px -30px rgba(0,0,0,0.6);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .taxonomy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1.25rem; }
+        .taxonomy-btn { 
+            display: flex; flex-direction: column; items-center justify-center p-5 rounded-[2rem] border-4 border-transparent bg-gray-50/50 cursor-pointer transition-all opacity-40 grayscale;
+        }
+        .taxonomy-btn.active { border-color: var(--primary); background: #fffaf0; opacity: 1; grayscale: 0; transform: scale(1.05); }
+
+        .spark-chip { padding: 0.6rem 1.2rem; border-radius: 99rem; border: 1px solid #fed7aa; background: #fff7ed; color: #ea580c; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; }
+        .spark-chip:hover { background: #f97316; color: white; }
+
+        .btn-primary { background: #0f1419; color: white; font-weight: 900; border-radius: 1.5rem; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 0.75rem; cursor: pointer; padding: 1.5rem 3rem; border: none; position: relative; z-index: 30; }
+        .btn-primary:active { transform: scale(0.95); }
+
+        .input-premium { background: #f7f9f9; border: 2px solid transparent; border-radius: 1.5rem; padding: 1.75rem; font-size: 1.5rem; width: 100%; outline: none; transition: all 0.3s; }
+        .input-premium:focus { background: white; border-color: var(--primary); }
+
+        .iou-card { background: white; border: 1px solid var(--border); border-radius: 2.5rem; padding: 2rem; transition: all 0.4s; shadow-sm relative overflow-hidden; min-height: 24rem; cursor: pointer; }
+        .backdrop-img, .backdrop-video { @apply w-full h-full object-cover; }
+        .overlay-frost { @apply absolute inset-0 bg-white/40 backdrop-blur-[3px]; }
+        .full-flash-img { @apply absolute inset-0 z-0 transition-opacity duration-500 pointer-events-none; }
+        
+        .content-layer { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; transition: all 0.3s; }
+        .content-layer.dimmed { text-shadow: 0 0 15px rgba(255,255,255,0.9); }
+
+        .nav-link { position: relative; font-weight: 800; font-size: 1.1rem; color: var(--text-muted); transition: color 0.1s; border: none; background: transparent; cursor: pointer; }
+        .nav-link.active { color: var(--text-main); }
+        .nav-link.active::after { content: ''; @apply absolute -bottom-1 left-0 w-full h-1 bg-primary rounded-full; }
+
+        .privacy-toggle { @apply flex items-center justify-between p-6 bg-gray-50 rounded-3xl border-2 border-gray-100 transition-all; }
+        .toggle-track { @apply w-16 h-8 rounded-full relative transition-colors duration-300; }
+        .toggle-thumb { @apply absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300; }
+
+        /* V30.10 CENTERED DASHBOARD STYLES (ADDED) */
+        .dashboard-centered { @apply flex flex-col items-center text-center gap-8; }
+        .stat-pill-modern { @apply flex flex-col items-center justify-center px-10 py-6 rounded-[2.5rem] transition-all border-4; }
+        .stat-radiance { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-color: #f97316; }
+        .stat-resonance { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #3b82f6; }
+        .text-micro { font-size: 0.75rem; @apply font-black uppercase tracking-[0.2em]; }
+        .avatar-frame { padding: 6px; background: linear-gradient(45deg, #f97316, #3b82f6); @apply rounded-full shadow-2xl; }
+        .avatar-v30 { @apply w-32 h-32 md:w-48 md:h-48 rounded-full border-8 border-white bg-[#0f1419] flex items-center justify-center overflow-hidden; }
+        .btn-modern-pill { @apply px-8 py-3 rounded-full font-black text-[11px] uppercase tracking-widest transition-all active:scale-95 cursor-pointer; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect, useRef, createElement: h } = React;
+        const SUPABASE_URL = 'https://cijsxlylkanxmzkteabg.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_cOcjpEDxsX7EH-5cm0ByxA_OqbizsX4';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const REDIRECT_URL = window.location.origin + window.location.pathname;
+
+        const NEXT_GEN_TAXONOMY = { 
+            EMOTIONAL: { icon: h('i', { className: "ph-duotone ph-heart text-red-500" }), label: 'Soul' }, 
+            TIME: { icon: h('i', { className: "ph-duotone ph-hourglass-medium text-blue-500" }), label: 'Time' }, 
+            PRESENCE: { icon: h('i', { className: "ph-duotone ph-sparkle text-yellow-500" }), label: 'Presence' }, 
+            CREATIVE: { icon: h('i', { className: "ph-duotone ph-palette text-purple-500" }), label: 'Alchemy' }, 
+            SACRIFICIAL: { icon: h('i', { className: "ph-duotone ph-hand-heart text-orange-500" }), label: 'Offering' },
+            STEADFAST: { icon: h('i', { className: "ph-duotone ph-anchor text-cyan-600" }), label: 'Anchor' }, 
+            RADIANT: { icon: h('i', { className: "ph-duotone ph-sun text-yellow-400" }), label: 'Luminous' }, 
+            WISDOM: { icon: h('i', { className: "ph-duotone ph-brain text-indigo-400" }), label: 'Insight' }, 
+            NURTURING: { icon: h('i', { className: "ph-duotone ph-plant text-green-500" }), label: 'Vitality' }, 
+            ADVENTURE: { icon: h('i', { className: "ph-duotone ph-compass text-rose-500" }), label: 'Quest' },
+            GRIT: { icon: h('i', { className: "ph-duotone ph-hammer text-gray-600" }), label: 'Steel' }, 
+            LOYALTY: { icon: h('i', { className: "ph-duotone ph-shield-check text-blue-700" }), label: 'Loyal' }, 
+            CURIOSITY: { icon: h('i', { className: "ph-duotone ph-magnifying-glass text-emerald-500" }), label: 'Seek' }, 
+            BLISS: { icon: h('i', { className: "ph-duotone ph-butterfly text-pink-400" }), label: 'Euphor' }, 
+            COURAGE: { icon: h('i', { className: "ph-duotone ph-target text-red-600" }), label: 'Lion' },
+            HUMILITY: { icon: h('i', { className: "ph-duotone ph-waves text-blue-300" }), label: 'Grace' }, 
+            PATIENCE: { icon: h('i', { className: "ph-duotone ph-wind text-gray-400" }), label: 'Zen' }, 
+            GENEROSITY: { icon: h('i', { className: "ph-duotone ph-gift text-orange-400" }), label: 'Nobility' }, 
+            INTEGRITY: { icon: h('i', { className: "ph-duotone ph-scales text-slate-500" }), label: 'Honor' }, 
+            PASSION: { icon: h('i', { className: "ph-duotone ph-flame text-orange-600" }), label: 'Ignite' },
+            VITALITY: { icon: h('i', { className: "ph-duotone ph-lightning text-yellow-500" }), label: 'Pulse' }, 
+            UNITY: { icon: h('i', { className: "ph-duotone ph-users-three text-blue-500" }), label: 'Circle' }, 
+            FORGIVENESS: { icon: h('i', { className: "ph-duotone ph-bird text-blue-200" }), label: 'Release' }, 
+            PLAYFUL: { icon: h('i', { className: "ph-duotone ph-confetti text-pink-500" }), label: 'Spark' }, 
+            HEALING: { icon: h('i', { className: "ph-duotone ph-first-aid text-red-400" }), label: 'Mend' }
+        };
+
+        const FREQUENCY_BACKDROPS = {
+            EMOTIONAL: 'https://images.unsplash.com/photo-1518199266791-bd373292454a?q=80&w=1000&auto=format&fit=crop',
+            SOUL: 'https://images.unsplash.com/photo-1519750783826-e2420f4d687f?q=80&w=1000&auto=format&fit=crop',
+            RADIANT: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=1000&auto=format&fit=crop',
+            VITALITY: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1000&auto=format&fit=crop',
+            BLISS: 'https://images.unsplash.com/photo-1499209974431-9eaa37a11144?q=80&w=1000&auto=format&fit=crop',
+            FORGIVENESS: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1000&auto=format&fit=crop',
+            HEALING: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=1000&auto=format&fit=crop',
+            NURTURING: 'https://images.unsplash.com/photo-1416870213491-c9303e65a50e?q=80&w=1000&auto=format&fit=crop',
+            TIME: 'https://images.unsplash.com/photo-1501139083538-0139583c060f?q=80&w=1000&auto=format&fit=crop',
+            STEADFAST: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1000&auto=format&fit=crop',
+            PATIENCE: 'https://images.unsplash.com/photo-1493246507139-91e8bef99c02?q=80&w=1000&auto=format&fit=crop',
+            PRESENCE: 'https://images.unsplash.com/photo-1528722828814-77b9b83acfbd?q=80&w=1000&auto=format&fit=crop',
+            UNITY: 'https://images.unsplash.com/photo-1529156069898-49953e39b30f?q=80&w=1000&auto=format&fit=crop',
+            PLAYFUL: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1000&auto=format&fit=crop',
+            LOYALTY: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?q=80&w=1000&auto=format&fit=crop',
+            CURIOSITY: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop',
+            CREATIVE: 'https://images.unsplash.com/photo-1460661419201-cl8a6b106c5b?q=80&w=1000&auto=format&fit=crop',
+            WISDOM: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1000&auto=format&fit=crop',
+            PASSION: 'https://images.unsplash.com/photo-1464802686167-b939a67a06f1?q=80&w=1000&auto=format&fit=crop',
+            ADVENTURE: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1000&auto=format&fit=crop',
+            ALCHEMY: 'https://images.unsplash.com/photo-1532187863486-abf9d3a35223?q=80&w=1000&auto=format&fit=crop',
+            SACRIFICIAL: 'https://images.unsplash.com/photo-1518049360730-330ef7cae944?q=80&w=1000&auto=format&fit=crop',
+            GRIT: 'https://images.unsplash.com/photo-1530124566582-a618bc2615ad?q=80&w=1000&auto=format&fit=crop',
+            COURAGE: 'https://images.unsplash.com/photo-1502657877623-f66bf489d236?q=80&w=1000&auto=format&fit=crop',
+            INTEGRITY: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1000&auto=format&fit=crop',
+            GENEROSITY: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=1000&auto=format&fit=crop',
+            HUMILITY: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1000&auto=format&fit=crop',
+        };
+
+        const SPARK_SUGGESTIONS = { 
+            EMOTIONAL: ["You held space for me when...", "Felt so seen when you...", "Support during the transition..."], TIME: ["Grateful for the help with...", "You gave me back my time by...", "Showing up for that hour meant..."], 
+            CREATIVE: ["This piece you made changed...", "Your unique eye transformed...", "Lending your magic to the project..."], PRESENCE: ["Your face in the crowd was...", "Just being there was enough...", "I wasn't alone because..."], 
+            SACRIFICIAL: ["I know what it cost you...", "Your huge sacrifice for me...", "Putting my needs above yours..."], STEADFAST: ["Never wavering even when...", "You stood by me during...", "The anchor in my storm..."], RADIANT: ["You lit up the room by...", "The energy you brought to...", "Your joy today was contagious..."],
+            WISDOM: ["That insight you shared about...", "Your guidance helped me see...", "Pure wisdom when you said..."], NURTURING: ["The way you cared for...", "Healing energy when I was...", "Gentle encouragement during..."], ADVENTURE: ["wild journey we took...", "Spur of moment trip to...", "Bringing the thrill of the new..."],
+            GRIT: ["way you powered through...", "Never giving up on...", "determination during..."], LOYALTY: ["Sticking with me through...", "friendship shown when...", "You have my back..."], CURIOSITY: ["asking why about...", "Exploring the depths of...", "The way you seek to learn..."],
+            BLISS: ["Total joy when...", "Pure magic in the moment...", "brought high vibration..."], COURAGE: ["Facing fear for...", "Standing for what is right...", "Bravery in face of..."], HUMILITY: ["grace you showed during...", "Knowing when to be quiet...", "ego aside for..."], PATIENCE: ["Waiting for right time...", "calm you kept during...", "Giving me space to grow..."],
+            GENEROSITY: ["Above and beyond with...", "gift of your...", "Sharing everything with..."], INTEGRITY: ["Doing right thing for...", "Being true to your word...", "Strength of character in..."], PASSION: ["fire you put into...", "You inspired me by...", "love for what you do..."],
+            VITALITY: ["Life energy brought to...", "Recharging my soul with...", "made me feel alive..."], UNITY: ["Bringing us together for...", "Building the bridge during...", "One frequency, one heart..."], FORGIVENESS: ["Letting old weight go...", "Moving forward with peace...", "Returning to the light after..."], PLAYFUL: ["Lightening the vibe with...", "Remembering to be child...", "laughter shared during..."], HEALING: ["way you mended my...", "Balm for my soul when...", "spirit restoration via..."]
+        };
+
+        function App() {
+            const [session, setSession] = useState(null);
+            const [profile, setProfile] = useState(null);
+            const [view, setView] = useState('feed');
+            const [ious, setIous] = useState([]);
+            const [lastTarget, setLastTarget] = useState({id: null, username: ''});
+            const [showCookieBanner, setShowCookieBanner] = useState(false);
+
+            useEffect(() => {
+                const consent = localStorage.getItem('tinyiou_consentv221');
+                if (!consent) setShowCookieBanner(true);
+                client.auth.getSession().then(({ data }) => setSession(data.session));
+                client.auth.onAuthStateChange((event, s) => {
+                    setSession(s);
+                    if (event === 'PASSWORD_RECOVERY') setView('reset-password');
+                });
+            }, []);
+
+            useEffect(() => {
+                if (session) {
+                    client.from('profiles').select('*').eq('id', session.user.id).maybeSingle().then(({data}) => {
+                        setProfile(data);
+                        if (data && !data.username) setView('onboarding');
+                    });
+                }
+                fetchIOUs();
+            }, [session, view]);
+
+            const fetchIOUs = async () => {
+                const { data } = await client.from('ious').select('*, creator:creator_id(username, id), receiver:receiver_id(username, id), ripples:ripples(count)').order('created_at', { ascending: false });
+                setIous(data || []);
+            };
+
+            const claimUsername = async (uname) => {
+                const clean = uname.replace(/@/g,'').toLowerCase().trim();
+                const { error } = await client.from('profiles').update({ username: clean }).eq('id', session.user.id);
+                if (!error) {
+                    const { data } = await client.from('profiles').select('*').eq('id', session.user.id).single();
+                    setProfile(data); setView('feed');
+                } else alert(error.message);
+            };
+
+            const navigateToProfile = (username) => {
+                if (!username) return;
+                const clean = username.replace(/@/g,'').toLowerCase().trim();
+                window.history.pushState({}, '', `?u=${clean}`);
+                setView('profile:' + clean);
+            };
+
+            const navigateToWall = () => {
+                window.history.pushState({}, '', window.location.pathname);
+                setView('feed');
+            }
+
+            const currentSoul = view.startsWith('profile:') ? view.split(':')[1] : null;
+
+            return h('div', { className: "min-h-screen pb-20" },
+                h('nav', { className: "fixed top-0 left-0 w-full z-[100] px-4 md:px-12 py-4 md:py-6 bg-white border-b border-[#eff3f4] flex flex-col sm:flex-row justify-between items-center shadow-sm gap-4 sm:gap-0" },
+                    h('div', { className: "flex items-center gap-4 cursor-pointer self-start sm:self-center", onClick: navigateToWall },
+                        h('div', { className: "w-8 h-8 md:w-10 md:h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white font-black text-lg md:text-xl shadow-lg" }, "i"),
+                        h('h1', { className: "text-xl md:text-2xl font-black tracking-tighter text-gray-900 uppercase italic" }, "TinyIOU")
+                    ),
+                    h('div', { className: "flex items-center gap-4 md:gap-10 w-full sm:w-auto justify-between sm:justify-end" },
+                        h('div', { className: "flex items-center gap-4 md:gap-8" },
+                            h('button', { onClick: () => window.location.href = '/about.html', className: "nav-link" }, "About"),
+                            h('button', { onClick: navigateToWall, className: `nav-link ${view === 'feed' ? 'active' : ''}` }, "Wall"),
+                            h('button', { onClick: () => window.location.href = '/chat.html', className: "nav-link" }, "Chat")
+                        ),
+                        h('div', { className: "flex items-center gap-4 md:gap-6" },
+                            session && profile?.username && h('div', { className: "flex flex-col items-end pl-4 md:pl-6 border-l border-gray-100" },
+                                h('div', { className: "flex items-center gap-1.5" },
+                                    h('div', { className: "w-2 h-2 rounded-full bg-green-500 animate-pulse" }),
+                                    h('span', { className: "text-[8px] md:text-[10px] font-black text-orange-500 uppercase tracking-widest leading-none" }, "Active")
+                                ),
+                                h('span', { className: "text-sm md:text-lg font-black text-gray-900 cursor-pointer hover:text-orange-600 transition-colors uppercase", onClick: () => navigateToProfile(profile.username) }, `@${profile.username}`)
+                            ),
+                            session ? h('button', { onClick: () => client.auth.signOut().then(() => window.location.reload()), className: "nav-link text-red-500 font-black text-xs md:text-sm" }, "Exit") : h('button', { onClick: () => window.location.href = '/auth.html', className: "btn-primary !p-2 !px-4 md:!px-6 !text-xs !bg-[#0f1419]" }, "Join")
+                        )
+                    )
+                ),
+                h('main', { className: "max-w-[1400px] mx-auto pt-48 md:pt-32" },
+                    view === 'feed' && h(Wall, { session, ious, setView, fetchIOUs, onProfileClick: navigateToProfile }),
+                    currentSoul && h(PublicProfile, { username: currentSoul, session, fetchIOUs, onProfileClick: navigateToProfile, onBack: navigateToWall })
+                ),
+                showCookieBanner && h('div', { className: "cookie-banner animate__animated animate__slideInUp" },
+                    h('p', { className: "text-xs text-gray-400 font-bold px-4" }, "Maintaining calibration. See ", h('a', { href: "/terms.html", className: "text-orange-600 underline" }, "Terms"), "."),
+                    h('button', { onClick: () => { localStorage.setItem('tinyiou_consentv221', 'true'); setShowCookieBanner(false); }, className: "btn-primary mr-4 !py-2 !px-6 !text-xs" }, "Align")
+                ),
+                h('footer', { className: "bg-white fixed bottom-0 w-full z-50 border-t border-[#eff3f4] text-center" },
+                    h('div', { className: "flex justify-center gap-10 py-6 text-[10px] font-black text-gray-300 uppercase tracking-widest" },
+                        h('a', { href: "/terms.html", className: "hover:text-primary transition-colors" }, "Terms"),
+                        h('a', { href: "/privacy.html", className: "hover:text-primary transition-colors" }, "Privacy"),
+                        h('button', { onClick: () => { localStorage.removeItem('tinyiou_consentv221'); setShowCookieBanner(true); }, className: "hover:text-primary border-none bg-transparent font-black tracking-widest text-gray-300 uppercase cursor-pointer" }, "Cookies")
+                    ),
+                    h('span', { className: "font-black text-[10px] uppercase tracking-[0.4em] text-gray-300" }, "Build v30.56 • Standalone Auth Master Lock")
+                )
+            );
+        }
+
+        function Wall({ session, ious, setView, fetchIOUs, onProfileClick }) {
+            const [showForm, setShowForm] = useState(false);
+            const [hideHero, setHideHero] = useState(false);
+            return h('div', { className: "px-6 md:px-12" },
+                !hideHero && h('div', { className: "hero-banner" },
+                    h('h2', { className: "hero-title" }, "Acknowledge the little ways people show up for you"),
+                    h('div', { className: "hero-subtitle" }, h('span', { className: "hero-sub-text" }, "Build your collective gratitude ledger.")),
+                    h('div', { className: "flex flex-col sm:flex-row items-center justify-center gap-8 mt-16" },
+                        h('button', { onClick: () => session ? setShowForm(true) : window.location.href = '/auth.html', className: "btn-primary !text-2xl md:!text-3xl !px-12 md:!px-16 !py-6 md:!py-8 shadow-orange-500/20 shadow-xl italic font-black" }, session ? "Add IOU" : "Start Your Ledger"),
+                        h('button', { onClick: () => { document.getElementById('ledger-anchor')?.scrollIntoView({ behavior: 'smooth' }); }, className: "text-gray-400 font-black text-xl md:text-2xl hover:text-orange-500 transition-colors uppercase tracking-widest cursor-pointer bg-transparent border-none" }, "Explore Feed ↓")
+                    )
+                ),
+                h('div', { id: "ledger-anchor", className: "space-y-16 mt-12 pb-20 animate__animated animate__fadeIn" },
+                    h('header', { className: "text-center" }, h('h2', { className: "hero-text !text-[3rem] md:!text-[6rem] normal-case italic font-black text-gray-900" }, "iouWall."), h('p', { className: "text-sm md:text-xl font-bold uppercase tracking-[0.4em] text-gray-300 mt-2" }, "Social Ledger of Light")),
+                    h('div', { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12" }, ious.map(iou => h(IOUCard, { key: iou.id, iou, onProfileClick, onResonate: async () => { if(!session) return window.location.href = '/auth.html'; await client.from('ripples').insert([{ iou_id: iou.id, user_id: session.user.id }]); fetchIOUs(); } }))),
+                ),
+                session && h('button', { onClick: () => setShowForm(true), className: "fixed bottom-24 right-6 md:right-10 w-16 h-16 md:w-20 md:h-20 bg-orange-600 rounded-full text-white text-4xl md:text-5xl font-black shadow-2xl flex items-center justify-center cursor-pointer transition-transform hover:scale-110 z-40 border-none" }, "+"),
+                showForm && h(WorkflowModal, { session, onClose: () => setShowForm(false), onComplete: fetchIOUs })
+            );
+        }
+
+        function IOUCard({ iou, onResonate, onProfileClick }) {
+            const rCount = iou.ripples?.[0]?.count || 0;
+            const userMedia = iou.media_urls?.find(u => u && u.toString().startsWith('http'));
+            let displayTaxonomy = iou.taxonomy || 'EMOTIONAL';
+            let cleanNarrative = iou.narrative || '';
+            if (cleanNarrative.includes(' | ')) {
+                const parts = cleanNarrative.split(' | ');
+                if (parts[0] && FREQUENCY_BACKDROPS[parts[0]]) { displayTaxonomy = parts[0]; cleanNarrative = parts.slice(1).join(' | '); }
+            }
+            const mediaUrl = userMedia || FREQUENCY_BACKDROPS[displayTaxonomy] || FREQUENCY_BACKDROPS.EMOTIONAL;
+            const isVideo = mediaUrl && (mediaUrl.toLowerCase().includes('.webm') || mediaUrl.toLowerCase().includes('.mp4') || mediaUrl.toLowerCase().includes('.mov') || mediaUrl.includes('v_'));
+            const cat = NEXT_GEN_TAXONOMY[displayTaxonomy] || NEXT_GEN_TAXONOMY.EMOTIONAL;
+            
+            return h('div', { key: iou.id, className: "iou-card flex flex-col pt-10 relative overflow-hidden", onClick: () => onProfileClick(iou.receiver?.username) },
+                mediaUrl && (isVideo ? 
+                    h('video', { 
+                        key: "v-"+iou.id, autoPlay: true, loop: true, muted: true, playsInline: true, "webkit-playsinline": "true", preload: "auto",
+                        className: "absolute inset-0 w-full h-full object-cover z-0",
+                        style: { backgroundColor: 'black' }
+                    }, h('source', { src: mediaUrl, type: mediaUrl.toLowerCase().includes('.mov') ? 'video/quicktime' : 'video/mp4' })) : 
+                    h('img', { 
+                        key: "i-"+iou.id, 
+                        src: mediaUrl, 
+                        className: "absolute inset-0 w-full h-full object-cover z-0",
+                        loading: "lazy"
+                    })
+                ),
+                mediaUrl && h('div', { className: "absolute inset-0 bg-white/40 backdrop-blur-[3px] z-[1]" }),
+                
+                h('div', { className: "content-layer dimmed relative z-[10] flex-1 flex flex-col", style: { pointerEvents: 'none' } },
+                    h('div', { className: "text-left mb-6 flex items-center gap-4", style: { pointerEvents: 'auto' } }, 
+                        h('div', { className: "w-10 h-10 rounded-2xl bg-[#0f1419] text-white flex items-center justify-center font-black" }, iou.creator?.username?.[0].toUpperCase() || 'S'), 
+                        h('div', null, 
+                            h('p', { className: "font-black text-sm text-gray-900 cursor-pointer hover:text-orange-500", onClick: (e) => { e.stopPropagation(); onProfileClick(iou.creator?.username); } }, `@${iou.creator?.username || 'soul'}`), 
+                            h('p', { className: "text-[9px] text-gray-400 font-bold uppercase tracking-widest cursor-pointer hover:text-orange-500", onClick: (e) => { e.stopPropagation(); onProfileClick(iou.receiver?.username); } }, `to @${iou.receiver?.username || 'soul'}`)
+                        )
+                    ),
+                    h('h3', { className: "text-xl md:text-2xl font-black italic text-left flex-1 text-gray-900 leading-snug", style: { pointerEvents: 'none' } }, cleanNarrative ? `“${cleanNarrative}”` : ""),
+                    h('div', { className: "mt-6 pt-4 border-t border-gray-100 flex justify-between items-center", style: { pointerEvents: 'auto' } }, 
+                        h('div', { className: "flex items-center gap-3" }, h('span', { className: "text-2xl" }, cat.icon), h('span', { className: "text-[12px] font-black uppercase text-gray-700 tracking-widest" }, cat.label)),
+                        h('button', { onClick: (e) => { e.stopPropagation(); onResonate(); }, className: "flex items-center gap-2 cursor-pointer transition-all active:scale-125 bg-transparent border-none p-0" }, h('span', { className: `text-3xl ${rCount > 0 ? 'text-orange-500' : 'text-gray-200'}` }, "🧡"), h('span', { className: "text-lg font-black text-gray-700" }, rCount || ""))
+                    )
+                )
+            );
+        }
+
+        function WorkflowModal({ session, onClose, onComplete }) {
+            const [step, setStep] = useState(1);
+            const [inp, setInp] = useState({ un: '', tx: 'EMOTIONAL', msg: '', img: '' });
+            const [uploading, setUploading] = useState(false);
+            const [preview, setPreview] = useState(null);
+            const [recording, setRecording] = useState(false);
+            const [recentSent, setRecentSent] = useState([]);
+            const videoRef = useRef(null); const recorderRef = useRef(null); const chunksRef = useRef([]);
+
+            useEffect(() => {
+                const fetchRec = async () => {
+                   if (!session) return;
+                   const { data } = await client.from('ious').select('receiver:receiver_id(username)').eq('creator_id', session.user.id).order('created_at', { ascending: false }).limit(6);
+                   const uNames = [...new Set(data?.map(i => i.receiver?.username).filter(Boolean))]; setRecentSent(uNames.slice(0, 3));
+                }; fetchRec();
+            }, [session]);
+
+            const handleUpload = async (e) => {
+                const file = e.target.files[0]; if (!file) return; setUploading(true);
+                const { data, error } = await client.storage.from('iou_images').upload(`p_${Date.now()}`, file);
+                if (data) { const { data: { publicUrl } } = client.storage.from('iou_images').getPublicUrl(data.path); setInp({...inp, img: publicUrl}); setPreview(publicUrl); }
+                else alert("Sync failed."); setUploading(false);
+            };
+
+            const toggleCamera = async () => {
+                try { const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: true });
+                    if (videoRef.current) { videoRef.current.srcObject = s; videoRef.current.play(); } } catch (e) { alert("Access Denied"); }
+            };
+
+            const startRec = () => { if (!videoRef.current?.srcObject) return; chunksRef.current = [];
+                const recorder = new MediaRecorder(videoRef.current.srcObject, { mimeType: 'video/mp4' });
+                if (!MediaRecorder.isTypeSupported('video/mp4')) {
+                    // Fallback for browsers that don't support mp4 recording (like some older Chrome)
+                    recorder.options = { mimeType: 'video/webm' };
+                }
+                recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+                recorder.onstop = async () => {
+                    const isMp4 = recorder.mimeType.includes('mp4');
+                    const extension = isMp4 ? 'mp4' : 'webm';
+                    const blob = new Blob(chunksRef.current, { type: recorder.mimeType }); setUploading(true);
+                    const { data, error } = await client.storage.from('iou_images').upload(`v_${Date.now()}.${extension}`, blob);
+                    if (data) { const { data: { publicUrl } } = client.storage.from('iou_images').getPublicUrl(data.path); setInp({...inp, img: publicUrl}); setPreview(publicUrl); }
+                    setUploading(false); setRecording(false);
+                }; recorder.start(); recorderRef.current = recorder; setRecording(true);
+                setTimeout(() => { if (recorder.state === "recording") recorder.stop(); }, 5000);
+            };
+
+            const stopCamera = () => { if (videoRef.current && videoRef.current.srcObject) { videoRef.current.srcObject.getTracks().forEach(t => t.stop()); videoRef.current.srcObject = null; } };
+
+            const submit = async () => {
+                const cleanName = (inp.un || "").replace(/@/g,'').toLowerCase().trim();
+                const { data } = await client.from('profiles').select('id').eq('username', cleanName).maybeSingle();
+                if (!data) return alert("Soul handle unidentified.");
+                const TAXONOMY_MAP = { EMOTIONAL: 'EMOTIONAL', SOUL: 'EMOTIONAL', RADIANT: 'EMOTIONAL', VITALITY: 'EMOTIONAL', BLISS: 'EMOTIONAL', FORGIVENESS: 'EMOTIONAL', HEALING: 'EMOTIONAL', NURTURING: 'EMOTIONAL', TIME: 'TIME', STEADFAST: 'TIME', PATIENCE: 'TIME', PRESENCE: 'PRESENCE', UNITY: 'PRESENCE', PLAYFUL: 'PRESENCE', LOYALTY: 'PRESENCE', CURIOSITY: 'PRESENCE', CREATIVE: 'CREATIVE', WISDOM: 'CREATIVE', PASSION: 'CREATIVE', ADVENTURE: 'CREATIVE', ALCHEMY: 'CREATIVE', SACRIFICIAL: 'SACRIFICIAL', GRIT: 'SACRIFICIAL', COURAGE: 'SACRIFICIAL', INTEGRITY: 'SACRIFICIAL', GENEROSITY: 'SACRIFICIAL', HUMILITY: 'SACRIFICIAL' };
+                const dbTaxonomy = TAXONOMY_MAP[inp.tx] || 'EMOTIONAL';
+                
+                const { error } = await client.from('ious').insert([{ 
+                    creator_id: session.user.id, 
+                    receiver_id: data.id, 
+                    taxonomy: dbTaxonomy, 
+                    narrative: (inp.tx + " | " + inp.msg), 
+                    media_urls: inp.img ? [inp.img] : [] 
+                }]);
+                if (!error) { stopCamera(); onComplete(); onClose(); } else alert(error.message);
+            };
+
+            return h('div', { className: "modal-overlay" }, h('div', { className: "modal-body shadow-xl" },
+                h('div', { className: "flex justify-between items-center mb-10 sticky top-[-3.5rem] bg-white z-[100] py-4 border-b" },
+                    h('div', { className: "flex items-center gap-4" }, 
+                        step > 1 && h('button', { onClick: () => setStep(step - 1), className: "text-orange-600 font-black text-xs uppercase bg-transparent border-none cursor-pointer hover:underline" }, "← Back"),
+                        h('div', { className: "px-4 py-1 bg-orange-100/50 rounded-full text-orange-600 font-black text-[10px] uppercase tracking-widest" }, `Step ${step}/5`), 
+                        h('h2', { className: "hidden sm:block text-xl font-black italic uppercase" }, "Memorialize")
+                    ),
+                    h('button', { onClick: () => { stopCamera(); onClose(); }, className: "text-4xl text-gray-200 hover:text-black cursor-pointer bg-transparent border-none" }, "✕")),
+                step === 1 && h('div', { className: "space-y-10 animate__animated animate__fadeIn" },
+                    h('div', null, h('label', { className: "text-[10px] font-black uppercase text-gray-400 mb-4 block" }, "Identify Target Soul"), h('input', { className: "input-premium !text-4xl shadow-none font-black italic uppercase", placeholder: "@handle", value: inp.un, onChange: e => setInp({...inp, un: e.target.value}) })),
+                    recentSent.length > 0 && h('div', { className: "flex items-center gap-4" }, h('span', { className: "text-[10px] font-black text-gray-300 uppercase" }, "Recents:"),
+                        h('div', { className: "flex gap-2" }, recentSent.map(u => h('button', { onClick: () => setInp({...inp, un: u}), className: "px-4 py-2 rounded-full border border-gray-100 text-sm font-bold text-gray-500 hover:border-orange-500 transition-all font-black shadow-xs bg-transparent cursor-pointer" }, `@${u}`)))),
+                    h('button', { disabled: !inp.un, onClick: () => setStep(2), className: "btn-primary w-full h-24 !text-3xl uppercase shadow-xl font-black italic border-none" }, "Next Channel →")),
+                step === 2 && h('div', { className: "space-y-10 animate__animated animate__fadeIn" },
+                    h('div', null, h('label', { className: "text-[10px] font-black uppercase text-gray-400 mb-6 block ml-2" }, "Select Frequency"),
+                        h('div', { className: "taxonomy-grid" }, Object.entries(NEXT_GEN_TAXONOMY).map(([k,v]) => h('div', { key: k, onClick: () => setInp({...inp, tx: k}), className: `taxonomy-btn ${inp.tx === k ? 'active' : ''}` }, 
+                            h('div', { className: "text-4xl mb-1" }, v.icon), h('span', { className: "text-[9px] font-bold" }, v.label))))),
+                    h('button', { onClick: () => setStep(3), className: "btn-primary w-full h-20 !text-2xl shadow-xl italic font-black border-none" }, "Narrative Connection →")),
+                step === 3 && h('div', { className: "space-y-10 animate__animated animate__fadeIn" },
+                    h('div', null, h('label', { className: "text-[10px] font-black text-gray-400 mb-4 block text-left" }, "Fragments & Flow"),
+                        h('div', { className: "flex flex-wrap gap-2 mb-6" }, SPARK_SUGGESTIONS[inp.tx]?.map(s => h('span', { key: s, onClick: () => setInp({...inp, msg: s}), className: "spark-chip font-bold" }, s))),
+                        h('textarea', { className: "input-premium h-64 shadow-none !text-2xl font-black italic", placeholder: "memorialize the feeling...", value: inp.msg, onChange: e => setInp({...inp, msg: e.target.value}) })),
+                    h('button', { disabled: !inp.msg, onClick: () => setStep(4), className: "btn-primary w-full h-20 !text-2xl font-black shadow-xl border-none" }, "Attach Media →")),
+                step === 4 && h('div', { className: "space-y-10 animate__animated animate__fadeIn" },
+                    h('div', null, h('label', { className: "text-[10px] font-black text-gray-400 uppercase mb-6 block" }, "Evidence of Light"),
+                        h('div', { className: "flex gap-2 mb-6 p-1 bg-gray-50 rounded-2xl" }, 
+                            h('label', { className: "flex-1 py-3 text-xs font-black uppercase bg-black text-white rounded-xl text-center cursor-pointer active:scale-95 transition-all shadow-sm" }, "Gallery Upload", h('input', { type: 'file', accept: 'image/*,video/*', className: 'hidden', onChange: handleUpload })),
+                            h('button', { onClick: toggleCamera, className: "flex-1 py-3 text-xs font-black uppercase shadow-none bg-transparent border-none cursor-pointer text-gray-400 hover:text-black transition-colors" }, "Live REC")
+                        ),
+                        h('div', { className: "relative w-full h-64 bg-black rounded-3xl overflow-hidden shadow-inner mb-4" },
+                            h('video', { ref: videoRef, autoPlay: true, playsInline: true, muted: true, className: "w-full h-full object-cover" }),
+                            preview && h('div', { className: "absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center" }, h('h4', { className: "text-white font-black italic mb-4" }, "Entry Captured"), h('button', { onClick: () => { setPreview(null); setInp({...inp, img: ''}); }, className: "text-white text-[10px] font-bold underline uppercase" }, "Retake")))
+                        ,h('div', { className: "flex gap-4" }, 
+                            !recording ? h('button', { onClick: startRec, className: "btn-primary !bg-red-600 flex-1 font-black shadow-xl border-none" }, h('i', { className: "ph-bold ph-record mr-2" }), "Record") : 
+                            h('button', { onClick: () => recorderRef.current.stop(), className: "btn-primary !bg-orange-600 flex-1 animate-pulse font-black shadow-xl border-none" }, h('i', { className: "ph-bold ph-stop mr-2" }), "Stop Sync"))),
+                    h('button', { onClick: () => setStep(5), className: "btn-primary w-full h-20 !text-2xl font-black shadow-xl border-none" }, "Review Entry →")),
+                step === 5 && h('div', { className: "space-y-10 animate__animated animate__fadeIn pb-10" },
+                    h('div', { className: "bg-gray-50 rounded-3xl p-8 border border-gray-100" }, h('p', { className: "text-[10px] uppercase font-black text-gray-400 mb-4" }, "Preview"), h('h3', { className: "text-3xl font-black italic mb-2 text-gray-800" }, `“${inp.msg}”`), h('p', { className: "text-sm text-gray-400 font-bold uppercase" }, `For @${inp.un}`)),
+                    h('button', { onClick: submit, className: "btn-primary w-full h-24 !text-3xl shadow-2xl shadow-orange-500/20 active:scale-95 italic font-black border-none" }, "Commit to Wall 🕊️"))
+            ));
+        }
+
+        function PublicProfile({ username, session, fetchIOUs, onProfileClick, onBack }) {
+            const [soulProfile, setSoulProfile] = useState(null);
+            const [soulIous, setSoulIous] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [isPrivate, setIsPrivate] = useState(false);
+            const [editing, setEditing] = useState(false);
+            const [editData, setEditData] = useState({ full_name: '', bio: '', avatar_url: '' });
+            const [uploading, setUploading] = useState(false);
+
+            const load = async () => {
+                setLoading(true);
+                const cleanName = (username || "").replace(/@/g,'').toLowerCase().trim();
+                const { data: profile } = await client.from('profiles').select('*').eq('username', cleanName).maybeSingle();
+                if (profile) {
+                    setSoulProfile(profile);
+                    setIsPrivate(profile.is_private || false);
+                    setEditData({ full_name: profile.full_name || '', bio: profile.bio || '', avatar_url: profile.avatar_url || '' });
+                    const isOwner = session?.user?.id === profile.id;
+                    if (!profile.is_private || isOwner) {
+                        const { data: ious } = await client.from('ious').select('*, creator:creator_id(username, id), receiver:receiver_id(username, id), ripples:ripples(count)').eq('receiver_id', profile.id).order('created_at', { ascending: false });
+                        setSoulIous(ious || []);
+                    }
+                }
+                setLoading(false);
+            };
+            useEffect(() => { load(); }, [username, session]);
+
+            const saveProfile = async () => {
+                const { error } = await client.from('profiles').update({ full_name: editData.full_name, bio: editData.bio, avatar_url: editData.avatar_url }).eq('id', session.user.id);
+                if (!error) { setEditing(false); load(); } else alert(error.message);
+            };
+
+            const handleAvatarUpload = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return; setUploading(true);
+                const { data, error } = await client.storage.from('iou_images').upload(`avatars/${Date.now()}_${file.name}`, file);
+                if (data) { const { data: { publicUrl } } = client.storage.from('iou_images').getPublicUrl(data.path); setEditData({...editData, avatar_url: publicUrl}); }
+                setUploading(false);
+            };
+
+            const togglePrv = async () => {
+                if (!session) return;
+                const newVal = !isPrivate;
+                const { error } = await client.from('profiles').update({ is_private: newVal }).eq('id', session.user.id);
+                if (!error) setIsPrivate(newVal);
+            };
+
+            if (loading) return h('div', { className: "max-w-4xl mx-auto p-40 text-center" }, h('div', { className: "w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto" }));
+            
+            const isOwner = session?.user?.id === soulProfile?.id;
+
+            return h('div', { className: "max-w-4xl mx-auto px-4 animate__animated animate__fadeIn py-12" },
+                h('button', { onClick: onBack, className: "mb-8 text-slate-400 font-bold bg-transparent border-none cursor-pointer flex items-center gap-2 hover:text-orange-600 transition-colors mx-auto" }, h('i', { className: "ph-bold ph-caret-left" }), "Return to Ledger"),
+                
+                /* THE CENTERED COLORFUL DASHBOARD V2 */
+                h('div', { className: "bg-white rounded-[4rem] p-12 border border-gray-100 shadow-2xl mb-16 relative overflow-hidden" },
+                    h('div', { className: "dashboard-centered" },
+                        h('div', { className: "avatar-frame" }, 
+                            h('div', { className: "avatar-v30" }, 
+                                (editing ? editData.avatar_url : soulProfile?.avatar_url) ? 
+                                    h('img', { src: editing ? editData.avatar_url : soulProfile.avatar_url, className: "w-full h-full object-cover" }) :
+                                    h('div', { className: "w-full h-full flex items-center justify-center text-6xl font-black text-slate-200" }, username[0].toUpperCase()),
+                                editing && h('label', { className: "absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer" },
+                                    h('i', { className: "ph-bold ph-camera text-white text-3xl" }),
+                                    h('input', { type: 'file', accept: 'image/*', className: "hidden", onChange: handleAvatarUpload })
+                                )
+                            )
+                        ),
+                        h('div', { className: "flex flex-col items-center space-y-4 w-full" },
+                            editing ? h('div', { className: "space-y-4 w-full max-w-md" },
+                                h('div', null, h('label', { className: "text-micro text-gray-400 mb-2 block" }, "Display Name"), h('input', { className: "fintech-input-v30 !text-xl !p-3 text-center", value: editData.full_name, onChange: e => setEditData({...editData, full_name: e.target.value}) })),
+                                h('div', null, h('label', { className: "text-micro text-gray-400 mb-2 block" }, "Soul Proclamation"), h('textarea', { className: "fintech-input-v30 h-20 !text-sm text-center resize-none p-3", value: editData.bio, onChange: e => setEditData({...editData, bio: e.target.value}) }))
+                            ) : h('div', { className: "text-center" },
+                                h('h1', { className: "text-4xl md:text-6xl font-black text-gray-900 leading-tight tracking-tighter" }, soulProfile?.full_name || `@${username}`),
+                                h('p', { className: "text-orange-500 font-black uppercase tracking-[0.4em] text-[10px] my-4" }, `@${username}`),
+                                soulProfile?.bio && h('p', { className: "text-sm md:text-base font-medium text-slate-500 max-w-lg leading-relaxed italic mx-auto" }, `“${soulProfile.bio}”`)
+                            )
+                        ),
+                        
+                        h('div', { className: "flex flex-col items-center gap-6 w-full" },
+                            !editing && h('div', { className: "flex gap-6 justify-center w-full" },
+                                h('div', { className: "stat-pill-modern stat-radiance flex-1 max-w-[160px]" }, 
+                                    h('p', { className: "text-3xl font-black text-orange-600" }, soulIous.length),
+                                    h('p', { className: "text-micro text-orange-400" }, "Radiance")
+                                ),
+                                h('div', { className: "stat-pill-modern stat-resonance flex-1 max-w-[160px]" }, 
+                                    h('p', { className: "text-3xl font-black text-blue-600" }, soulIous.reduce((a, b) => a + (b.ripples?.[0]?.count || 0), 0)),
+                                    h('p', { className: "text-micro text-blue-400" }, "Resonance")
+                                )
+                            ),
+
+                            isOwner && h('div', { className: "flex items-center gap-3 pt-4" },
+                                editing ? h('button', { onClick: saveProfile, className: "btn-fintech-primary !bg-orange-600 !px-12" }, [h('i', { className: "ph-bold ph-check mr-2" }), "Commit"]) :
+                                [
+                                    h('button', { key: "edit", onClick: () => setEditing(true), className: "btn-fintech-ghost" }, [h('i', { className: "ph-bold ph-pencil-simple mr-2" }), h('span', {className: "font-black"}, "Modify")]),
+                                    h('button', { key: "privacy", onClick: togglePrv, className: "btn-fintech-ghost" }, [h('i', { className: `ph-bold mr-2 ${isPrivate ? 'ph-lock text-orange-500' : 'ph-lock-open text-slate-300'}` }), h('span', {className: "font-black"}, isPrivate ? "Secure" : "Open")])
+                                ]
+                            )
+                        )
+                    )
+                ),
+
+                (!isPrivate || isOwner) && h('div', { className: "space-y-8 pb-20" },
+                    h('div', { className: "flex items-center justify-between border-b border-gray-100 pb-4" }, 
+                        h('h2', { className: "text-xl font-black italic text-gray-900" }, "Recorded Frequency."), 
+                        h('span', { className: "text-micro text-gray-300" }, `${soulIous.length} Entries`)
+                    ),
+                    h('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+                        soulIous.map(iou => h(IOUCard, { key: iou.id, iou, session, onProfileClick, onResonate: async () => { if(!session) return; await client.from('ripples').insert([{ iou_id: iou.id, user_id: session.user.id }]); load(); } }))
+                    )
+                )
+            );
+        }
+
+        function Chat({ session, lastTarget, setLastTarget }) {
+            const [target, setTarget] = useState(lastTarget); const [messages, setMessages] = useState([]); const [msg, setMsg] = useState(''); const [recentUsers, setRecentUsers] = useState([]); const scrollRef = useRef();
+            const fetchRecent = async () => { if (!session) return; const { data } = await client.from('messages').select('sender_id, receiver_id, sender:sender_id(username, avatar_url), receiver:receiver_id(username, avatar_url)').or(`sender_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`).order('created_at', { ascending: false });
+                const uMap = new Map(); data?.forEach(m => { const other = m.sender_id === session.user.id ? m.receiver : m.sender; if (other && other.username && (profile && other.username !== profile.username) && !uMap.has(other.username)) uMap.set(other.username, other); }); setRecentUsers(Array.from(uMap.values()).slice(0, 4)); };
+            const fetchMsg = async () => { const { data } = await client.from('messages').select('*').or(`sender_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`).order('created_at', { ascending: true }); setMessages(data || []); };
+            useEffect(() => { if (target.id) fetchMsg(); fetchRecent(); const chan = client.channel(`st-${target.id}`).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => { fetchMsg(); fetchRecent(); }).subscribe(); return () => client.removeChannel(chan); }, [target.id]);
+            useEffect(() => { setTimeout(() => { scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100); }, [messages, target.id]);
+            const link = async (val) => { const { data } = await client.from('profiles').select('id, username').eq('username', val.replace(/@/g,'').toLowerCase().trim()).maybeSingle();
+                if (data) { 
+                    const cleanUname = val.replace(/@/g,'').toLowerCase().trim();
+                    if (target.id && target.username.replace('@','').toLowerCase().trim() === cleanUname) { setTarget({id: null, username: ''}); setLastTarget({id: null, username: ''}); return; }
+                    setTarget({id: data.id, username: "@"+data.username}); setLastTarget({id: data.id, username: "@"+data.username}); 
+                } else alert("Failed."); 
+            };
+            return h('div', { className: "w-full max-w-4xl mx-auto h-[85vh] md:h-[75vh] flex flex-col bg-white rounded-[2.5rem] shadow-xl border border-[#eff3f4] overflow-hidden scale-in" },
+                h('div', { className: "p-6 md:p-10 border-b border-[#eff3f4] flex flex-col bg-[#fcfcfc] gap-4" }, 
+                    h('div', { className: "flex justify-between items-center" }, h('h3', { className: "text-xl md:text-3xl font-black italic text-gray-900 uppercase" }, "Resonance"), target.id ? h('div', { className: "flex items-center gap-2 px-4 py-1.5 bg-orange-50 rounded-full" }, h('div', { className: "w-2 h-2 rounded-full bg-orange-500 animate-ping" }), h('span', { className: "text-orange-600 font-bold text-sm" }, target.username)) : h('input', { className: "input-premium !w-40 md:!w-64 !p-2 !text-sm shadow-none border-gray-100", placeholder: "@soul link", onKeyDown: e => e.key==='Enter' && link(e.target.value) })),
+                    recentUsers.length > 0 && h('div', { className: "flex gap-2 overflow-x-auto pb-2" }, recentUsers.map(u => h('button', { key: u.username, onClick: () => link(u.username), className: "whitespace-nowrap px-4 py-1.5 rounded-full border border-gray-100 bg-white text-[10px] md:text-[12px] font-bold text-gray-400 hover:text-black shadow-xs bg-transparent cursor-pointer" }, `@${u.username}`)))),
+                h('div', { className: "flex-1 overflow-y-auto p-4 md:p-10 space-y-6 bg-[#fcfcfc]" }, messages.filter(m => m.sender_id === target.id || m.receiver_id === target.id).map(m => h('div', { key: m.id, className: `flex ${m.sender_id === session.user.id ? 'justify-end' : 'justify-start'}` }, h('div', { className: `max-w-[85%] p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] text-sm md:text-lg font-black shadow-sm ${m.sender_id === session.user.id ? 'bg-[#0f1419] text-white rounded-tr-none' : 'bg-white text-gray-900 rounded-tl-none border border-[#eff3f4]'}` }, m.content))), h('div', { ref: scrollRef })),
+                h('div', { className: "p-3 flex gap-4 md:gap-6 justify-center border-t bg-white overflow-x-auto" }, ['🕊️', '✨', '🧡', '🌱', '🧠', '⛵'].map(e => h('button', { key: e, onClick: () => setMsg(p => p + e), className: "text-3xl md:text-5xl hover:scale-125 transition-all grayscale hover:grayscale-0 shadow-none border-none bg-transparent cursor-pointer" }, e)))
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(h(App));
+    </script>
+</body>
+</html>

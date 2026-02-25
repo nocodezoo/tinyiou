@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TinyIOU | Chat Evolution Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.1/duotone/style.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px; color: #0f172a; }
+        .lab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .chat-container { 
+            height: 600px; background: white; border-radius: 2.5rem; overflow: hidden; 
+            display: flex; flex-direction: column; shadow-xl border border-slate-100 relative;
+            box-shadow: 0 20px 50px -15px rgba(0,0,0,0.1);
+        }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        .bubble { max-width: 80%; padding: 0.8rem 1.2rem; border-radius: 1.2rem; font-size: 0.9rem; font-weight: 500; position: relative; }
+        .bubble-me { align-self: flex-end; }
+        .bubble-them { align-self: flex-start; }
+        
+        /* VAR 1: DISCORD STYLE (Gamer/Community) */
+        .discord .bubble { border-radius: 4px; max-width: 100%; padding: 4px 0; background: transparent !important; }
+        .discord .bubble-me:hover, .discord .bubble-them:hover { background: #f2f3f5 !important; }
+        .discord .author { font-weight: 700; font-size: 0.95rem; margin-right: 8px; }
+        .discord .timestamp { font-size: 0.7rem; color: #64748b; }
+        
+        /* VAR 2: WHATSAPP STYLE (Utility/Personal) */
+        .whatsapp .chat-messages { background: #efe7dd; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
+        .whatsapp .bubble { box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); border-radius: 0.5rem; }
+        .whatsapp .bubble-me { background: #d9fdd3; border-top-right-radius: 0; }
+        .whatsapp .bubble-them { background: #ffffff; border-top-left-radius: 0; }
+
+        /* VAR 3: TELEGRAM STYLE (Cloud/Bubble Focused) */
+        .telegram .bubble { border-radius: 1.5rem; line-height: 1.4; shadow-sm; }
+        .telegram .bubble-me { background: #eeffde; color: #000; border-bottom-right-radius: 0.2rem; border: 1px solid #c8e6c9; }
+        .telegram .bubble-them { background: #ffffff; color: #000; border-bottom-left-radius: 0.2rem; border: 1px solid #e0e0e0; }
+
+        /* VAR 4: FINTECH/APPLE STYLE (Minimal/Premium) */
+        .apple .bubble { border-radius: 1.8rem; font-family: 'Inter', sans-serif; letter-spacing: -0.01em; }
+        .apple .bubble-me { background: #0052ff; color: white; }
+        .apple .bubble-them { background: #f1f1f2; color: black; }
+
+        .input-area { padding: 1.25rem; border-top: 1px solid #f1f5f9; background: white; display: flex; items: center; gap: 0.75rem; }
+        .input-field { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 99rem; padding: 0.6rem 1.2rem; font-size: 0.9rem; outline: none; }
+        .action-icon { @apply p-2 rounded-full hover:bg-slate-100 transition-all text-slate-400 cursor-pointer; }
+    </style>
+</head>
+<body>
+    <header class="mb-12 text-center md:text-left">
+        <h1 class="text-4xl font-black uppercase tracking-tighter text-slate-900 mb-2">Chat Evolution Lab</h1>
+        <p class="text-slate-500 font-medium italic">Select the DNA for TinyIOU's next-gen messaging.</p>
+    </header>
+
+    <div class="lab-grid">
+        
+        <!-- VARIATION 1: COMMUNITY (DISCORD) -->
+        <div class="space-y-4">
+            <h2 class="font-black text-xs uppercase tracking-widest text-slate-400 ml-2">1. Discord (Community)</h2>
+            <div class="chat-container discord">
+                <div class="p-4 border-b border-slate-100 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-indigo-500"></div>
+                    <span class="font-bold text-sm">General Resonance</span>
+                </div>
+                <div class="chat-messages">
+                    <div class="bubble bubble-them">
+                        <span class="author text-indigo-500">@soul_alpha</span><span class="timestamp">Today at 4:20 PM</span>
+                        <p class="mt-1">Did anyone see the new IOU from @ryant?</p>
+                    </div>
+                    <div class="bubble bubble-me">
+                        <span class="author text-slate-900">@me</span><span class="timestamp">Today at 4:21 PM</span>
+                        <p class="mt-1">Yeah, the movement in that energy field was insane.</p>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <i class="ph-bold ph-plus-circle action-icon"></i>
+                    <input class="input-field" placeholder="Message #general-resonance">
+                    <i class="ph-duotone ph-face-smiley action-icon"></i>
+                    <i class="ph-duotone ph-gift action-icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- VARIATION 2: UTILITY (WHATSAPP) -->
+        <div class="space-y-4">
+            <h2 class="font-black text-xs uppercase tracking-widest text-slate-400 ml-2">2. WhatsApp (Direct)</h2>
+            <div class="chat-container whatsapp">
+                <div class="p-4 bg-[#075e54] text-white flex gap-3 items-center">
+                    <div class="w-10 h-10 rounded-full bg-slate-200"></div>
+                    <div>
+                        <p class="font-bold text-sm leading-none">@soul_alpha</p>
+                        <p class="text-[10px] opacity-80 mt-1">online</p>
+                    </div>
+                </div>
+                <div class="chat-messages">
+                    <div class="bubble bubble-them">High frequency vibes only today ✨</div>
+                    <div class="bubble bubble-me">Understood. Resonance aligned. <span class="text-[9px] opacity-40 float-right mt-2 ml-2">18:22 ✓✓</span></div>
+                </div>
+                <div class="input-area">
+                    <i class="ph-bold ph-smiley action-icon"></i>
+                    <i class="ph-bold ph-paperclip action-icon"></i>
+                    <input class="input-field" placeholder="Type a message">
+                    <i class="ph-fill ph-microphone text-green-600 text-xl cursor-pointer"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- VARIATION 3: CLOUD (TELEGRAM) -->
+        <div class="space-y-4">
+            <h2 class="font-black text-xs uppercase tracking-widest text-slate-400 ml-2">3. Telegram (High-Fidelity)</h2>
+            <div class="chat-container telegram">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-white/80 backdrop-blur">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-400 to-blue-600 text-white flex items-center justify-center font-bold">SA</div>
+                        <span class="font-bold text-sm">@soul_alpha</span>
+                    </div>
+                    <i class="ph-bold ph-dots-three-vertical text-slate-400"></i>
+                </div>
+                <div class="chat-messages">
+                    <div class="bubble bubble-them">I'm sending a video evidence of light now...</div>
+                    <div class="bubble bubble-me overflow-hidden p-0 rounded-2xl">
+                        <img src="https://images.unsplash.com/photo-1460661419201-cl8a6b106c5b?q=80&w=400&auto=format&fit=crop" class="w-full h-40 object-cover">
+                        <p class="p-3">Captured this at the portal entrance!</p>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <i class="ph-bold ph-paperclip action-icon"></i>
+                    <input class="input-field" placeholder="Message">
+                    <i class="ph-fill ph-paper-plane-right text-blue-500 text-xl cursor-pointer"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- VARIATION 4: PREMIUM (TINYIOU/APPLE FINTECH) -->
+        <div class="space-y-4">
+            <h2 class="font-black text-xs uppercase tracking-widest text-slate-400 ml-2">4. Fintech Modern (Premium)</h2>
+            <div class="chat-container apple">
+                <div class="p-8 pb-4">
+                    <h3 class="text-2xl font-black tracking-tighter">Direct Link</h3>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Secured Resonance</p>
+                </div>
+                <div class="chat-messages px-8">
+                    <div class="bubble bubble-them">This interaction has been recorded to the ledger.</div>
+                    <div class="bubble bubble-me">Verified. Radiance +10.</div>
+                </div>
+                <div class="p-6 pt-0 mt-auto">
+                    <div class="bg-slate-50 rounded-[2rem] p-2 pr-4 flex items-center gap-3 border border-slate-100">
+                        <div class="flex gap-1 pl-2">
+                             <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-[#0052ff] cursor-pointer">
+                                <i class="ph-bold ph-camera"></i>
+                             </div>
+                             <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-[#0052ff] cursor-pointer">
+                                <i class="ph-bold ph-video-camera"></i>
+                             </div>
+                        </div>
+                        <input class="flex-1 bg-transparent border-none py-3 text-sm font-semibold outline-none" placeholder="Proclaim...">
+                        <i class="ph-fill ph-arrow-circle-up text-3xl text-[#0052ff] cursor-pointer"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="mt-20 text-center text-slate-300 text-[10px] font-black uppercase tracking-[0.4em] pb-10">
+        TinyIOU DNA Lab • Final Merge Imminent
+    </footer>
+</body>
+</html>

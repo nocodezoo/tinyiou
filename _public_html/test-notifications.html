@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyIOU Notification Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .test-section { background: #f3f4f6; padding: 2rem; border-radius: 8px; margin: 1rem 0; }
+        button { background: #f97316; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; margin: 0.25rem; }
+        .status { font-family: monospace; background: #1f2937; color: #f3f4f6; padding: 1rem; border-radius: 4px; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <h1>🔔 TinyIOU Notification System Test</h1>
+    
+    <div class="test-section">
+        <h3>System Status</h3>
+        <div id="status" class="status">Loading...</div>
+    </div>
+
+    <div class="test-section">
+        <h3>⚠️ Important Notes</h3>
+        <ul>
+            <li>Must be logged into TinyOui for notifications to work</li>
+            <li>Notifications are user-specific (your handle only)</li>
+            <li>Uses browser notifications + in-app toast</li>
+            <li>Auto-dismisses after 6 seconds</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>Subscription Test</h3>
+        <button onclick="testNotifications()">🔍 Check Notification Setup</button>
+        <button onclick="toggleNotificationSound()">🔇 Toggle Sound</button>
+    </div>
+
+    <div class="test-section">
+        <h3>Manual Simulation</h3>
+        <input type="text" id="testUsername" placeholder="Test username" value="testuser" />
+        <br><br>
+        <button onclick="simulateChatMessage()">💬 Simulate Chat Message</button>
+        <button onclick="simulateIOU()">📄 Simulate IOU</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="notifications.js"></script>
+
+    <script>
+        let testNotifications;
+
+        function updateStatus(text) {
+            document.getElementById('status').innerHTML = `<pre>${new Date().toLocaleTimeString()}: ${text}</pre>`;
+        }
+
+        setTimeout(() => {
+            testNotifications = window.TinyOuiNotifications;
+            if (testNotifications) {
+                updateStatus('✅ TinyOui notifications initialized!<br/>📱 System ready for real-time updates');
+            } else {
+                updateStatus('❌ TinyOui notifications not loaded - check login');
+            }
+        }, 1000);
+
+        function testNotifications() {
+            updateStatus(testNotifications ? 
+                '✅ System is running:<br/>' +
+                `- User: ${testNotifications.userProfile?.username || 'Unknown'}<br/>` +
+                `- Subscriptions: ${testNotifications.subscriptions.length}</br>` +
+                `- Container: ${testNotifications.notificationContainer ? 'Active' : 'Missing'}` : 
+                '❌ System not active - ensure logged in');
+        }
+
+        function simulateChatMessage() {
+            if (testNotifications) {
+                const username = document.getElementById('testUsername').value;
+                testNotifications.showNotification({
+                    type: 'chat',
+                    title: `Test from @${username}`,
+                    message: 'This is a test chat message!',
+                    action: { text: 'Reply', callback: () => console.log('Reply clicked') }
+                });
+            }
+        }
+
+        function simulateIOU() {
+            if (testNotifications) {
+                const username = document.getElementById('testUsername').value;
+                testNotifications.showNotification({
+                    type: 'iou',
+                    title: `IOU from @${username}`,
+                    message: 'Thank you for the support during the project!',
+                    action: { text: 'View', callback: () => console.log('View IOU clicked') }
+                });
+            }
+        }
+
+        function toggleNotificationSound() {
+            const current = localStorage.getItem('notificationSound') !== 'false';
+            localStorage.setItem('notificationSound', !current);
+            updateStatus(`🎵 Sound ${current ? 'disabled' : 'enabled'}`);
+        }
+    </script>
+</body>
+</html>

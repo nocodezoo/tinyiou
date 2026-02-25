@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TinyIOU | Profile Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <nav class="bg-white px-4 py-3 shadow-sm">
+        <a href="/" class="text-orange-600 font-bold text-lg">← Back to Wall</a>
+        <h1 class="text-xl font-bold" id="title">Profile</h1>
+    </nav>
+
+    <div class="max-w-lg mx-auto p-6">
+        <div id="loading" class="text-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+        </div>
+
+        <div id="profile-content" class="hidden">
+            <!-- Avatar Upload -->
+            <div class="text-center mb-8">
+                <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+                <div class="w-32 h-32 mx-auto mb-4 border-4 border-orange-500 rounded-full cursor-pointer hover:scale-105 transition-transform">
+                    <img id="avatar-preview" class="w-full h-full rounded-full object-cover"
+                         src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3Lncub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIGZpbGw9IiNmOTczMTYiLz4KPHRleHQgeD0iNjQiIHk9IjcwIiBmb250LXNpemU9IjQwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J2S5g==</mg=" alt="Avatar" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNmOTczMTYiLz4KPHRleHQgeD0iMTYiIHk9IjIxIiBmb250LXNpemU9IjE2IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J2S5g==</svg>'">
+                </div>
+                <div class="flex justify-center gap-4">
+                    <label for="avatar-upload" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">📁 Upload</label>
+                    <button onclick="triggerAvatarUpload()" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">📸 Camera</button>
+                </div>
+            </div>
+
+            <!-- Main Profile Form -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Display Name</label>
+                    <input type="text" id="fullname" class="w-full p-3 border border-gray-300 rounded-lg focus:border-orange-500" placeholder="Your essence...">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Bio</label>
+                    <textarea id="bio" class="w-full p-3 border border-gray-300 rounded-lg focus:border-orange-500 h-24 resize-none" placeholder="Share a bit about yourself..."></textarea>
+                </div>
+            </div>
+
+            <!-- Background Selector -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Emotional Backdrop</h3>
+                <div class="grid grid-cols-3 gap-3" id="bg-selector">
+                    <button onclick="setBackground(this, 'white')" class="w-12 h-12 rounded-lg border-2 border-white hover:scale-110 transition-all bg-white" title="Pure"></button>
+                    <button onclick="setBackground(this, 'cosmic')" class="w-12 h-12 rounded-lg border-2 border-gray-200 hover:scale-110 transition-all bg-gradient-to-br from-purple-500 to-pink-500" title="Cosmic"></button>
+                    <button onclick="setBackground(this, 'aurora')" class="w-12 h-12 rounded-lg border-2 border-gray-200 hover:scale-110 transition-all bg-gradient-to-br from-cyan-400 to-pink-300" title="Aurora"></button>
+                    <button onclick="setBackground(this, 'forest')" class="w-12 h-12 rounded-lg border-2 border-gray-200 hover:scale-110 transition-all bg-gradient-to-br from-green-400 to-teal-500" title="Forest"></button>
+                    <button onclick="setBackground(this, 'sunset')" class="w-12 h-12 rounded-lg border-2 border-gray-200 hover:scale-110 transition-all bg-gradient-to-br from-orange-400 to-red-500" title="Sunset"></button>
+                    <button onclick="setBackground(this, 'midnight')" class="w-12 h-12 rounded-lg border-2 border-gray-200 hover:scale-110 transition-all bg-gradient-to-br from-gray-700 to-black" title="Midnight"></button>
+                </div>
+            </div>
+
+            <button onclick="saveProfile()" class="w-full bg-orange-500 text-white py-4 rounded-lg font-bold uppercase text-lg hover:bg-orange-600 transition-colors">Save Soul</button>
+        </div>
+    </div>
+
+    <script>
+        let supabaseClient = null;
+        let currentUser = null;
+        let profileData = {
+            fullName: '',
+            bio: '',
+            background: 'white'
+        };
+
+        const gradientStyles = {
+            white: '',
+            cosmic: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            aurora: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            forest: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+            sunset: 'linear-gradient(135deg, #ff6b6b 0%, #ffb347 100%)',
+            midnight: 'linear-gradient(135deg, #1e293b 0%, #0f1419 100%)'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                supabaseClient = supabase.createClient(
+                    'https://cijsxlylkanxmzkteabg.supabase.co',
+                    'sb_publishable_cOcjpEDxsX7EH-5cm0ByxA_OqbizsX4'
+                );
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const username = urlParams.get('u');
+                document.getElementById('title').textContent = username ? `@${username}` : 'Profile';
+                
+                await loadProfile();
+            } catch (error) {
+                console.error('Setup error:', error);
+                loadDemo();
+            }
+        });
+
+        async function loadProfile() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    currentUser = session.user;
+                    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
+                    
+                    profileData = {
+                        fullName: profile?.full_name || 'Tiny Soul',
+                        bio: profile?.bio || '👋 Getting started...'
+                    };
+                } else {
+                    loadDemo();
+                }
+                render();
+            } catch (error) {
+                console.error('Load error:', error);
+                loadDemo();
+            }
+        }
+
+        function loadDemo() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('u') || 'soul';
+            profileData = {
+                fullName: username,
+                bio: '✨ Exploring gratitude'
+            };
+            render();
+        }
+
+        function render() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('profile-content').style.display = 'block';
+            
+            document.getElementById('fullname').value = profileData.fullName;
+            document.getElementById('bio').value = profileData.bio;
+        }
+
+        function setBackground(btn, bgName) {
+            profileData.background = bgName;
+            document.body.style.background = gradientStyles[bgName] || '';
+            
+            // Visual feedback
+            document.querySelectorAll('#bg-selector button').forEach(b => {
+                b.classList.remove('border-orange-500', 'border-2');
+                b.classList.add('border-gray-200');
+            });
+            btn.classList.remove('border-gray-200');
+            btn.classList.add('border-orange-500', 'border-2');
+        }
+
+        function triggerAvatarUpload() {
+            document.getElementById('avatar').click();
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('avatar-preview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function saveProfile() {
+            const fullName = document.getElementById('fullname').value.trim();
+            const bio = document.getElementById('bio').value.trim();
+            
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) {
+                    alert('Please log in to save changes');
+                    return;
+                }
+                
+                const { error } = await supabaseClient.from('profiles')
+                    .update({
+                        full_name: fullName,
+                        bio: bio,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', session.user.id);
+                
+                if (error) {
+                    alert(`Save failed: ${error.message}`);
+                } else {
+                    alert('✅ Profile saved successfully!');
+                    await loadProfile(); // Refresh data
+                }
+            } catch (error) {
+                alert('Save error. Please check console for details');
+                console.error('Save error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

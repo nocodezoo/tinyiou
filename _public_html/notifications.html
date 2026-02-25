@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyIOU Notifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.1/duotone/style.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --primary: #f97316;
+            --primary-light: #fb923c;
+            --bg: #f7f9f9;
+            --card-bg: #ffffff;
+            --border: #eff3f4;
+            --text-main: #0f1419;
+            --text-muted: #536471;
+        }
+
+        .notification-toast {
+            backdrop-filter: blur(15px);
+            border-left: 4px solid var(--primary);
+        }
+
+        .notification-dot {
+            background: linear-gradient(135deg, #f97316, #ffedd5);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .sound-toggle {
+            transition: all 0.2s ease;
+        }
+
+        .notification-enter {
+            animation: slideInResp 0.3s ease-out forwards;
+        }
+
+        @keyframes slideInResp {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .bounce-pulse {
+            animation: bouncePulse 2s infinite;
+        }
+
+        @keyframes bouncePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="notifications-container" class="fixed top-6 right-6 z-[9999] max-w-md space-y-3">
+        <!-- Notifications will be injected here -->
+    </div>
+
+    <div class="hidden" id="notification-template">
+        <div class="notification-toast bg-white/95 rounded-2xl p-4 shadow-2xl border border-orange-100 max-w-sm">
+            <div class="flex items-start gap-3">
+                <div class="notification-dot w-3 h-3 rounded-full mt-2 flex-shrink-0 bounce-pulse"></div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-black text-sm text-gray-900">{title}</h4>
+                    <p class="text-xs text-gray-600 mt-1">{message}</p>
+                    <div class="flex items-center gap-4 mt-3">
+                        <button onclick="this.closest('.notification-toast').remove()" 
+                                class="text-[10px] font-black uppercase tracking-wider text-gray-400 hover:text-orange-600 transition-colors cursor-pointer bg-transparent border-none">
+                            Dismiss
+                        </button>
+                        <button onclick="handleNotificationAction('{action}')" 
+                                class="text-[10px] font-black uppercase tracking-wider text-orange-600 hover:text-orange-700 transition-colors cursor-pointer bg-transparent border-none">
+                            {actionText}
+                        </button>
+                    </div>
+                </div>
+                <button onclick="this.closest('.notification-toast').remove()" 
+                        class="text-gray-300 hover:text-gray-600 text-lg bg-transparent border-none cursor-pointer leading-none">
+                    ×
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://cijsxlylkanxmzkteabg.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_cOcjpEDxsX7EH-5cm0ByxA_OqbizsX4';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let notificationChannel;
+        let notificationAudio;
+        let sessionUser;
+        let userProfile;
+
+        // Initialize notification system
+        async function initNotifications() {
+            await loadUserSession();
+            await loadUserProfile();
+            setupAudio();
+            subscribeToNotifications();
+            
+            // Grant permission if we can
+            requestNotificationPermission();
+            
+            console.log('📱 TinyIOU Notification System Active');
+        }
+
+        async function loadUserSession() {
+            const { data } = await client.auth.getSession();
+            sessionUser = data?.session?.user;
+            if (!sessionUser) {
+                console.warn('No session found - notifications disabled');
+                return false;
+            }
+            return true;
+        }
+
+        async function loadUserProfile() {
+            if (!sessionUser) return;
+            
+            const { data } = await client
+                .from('profiles')
+                .select('username, full_name')
+                .eq('id', sessionUser.id)
+                .single();
+            
+            userProfile = data;
+        }
+
+        function setupAudio() {
+            try {
+                notificationAudio = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAAABMYXZmNTYuNDUuMTAwAAA=');
+                const volume = localStorage.getItem('notificationVolume') || '0.3';
+                notificationAudio.volume = parseFloat(volume);
+            } catch (e) {
+                console.warn('Audio setup failed:', e);
+            }
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    console.log('Notification permission:', permission);
+                });
+            }
+        }
+
+        function showNotification(title, message, action = '', actionText = 'View') {
+            const container = document.getElementById('notifications-container');
+            const template = document.getElementById('notification-template');
+            
+            const notification = template.cloneNode(true);
+            notification.id = '';
+            notification.className = 'notification-enter';
+            
+            // Replace placeholders
+            const html = notification.innerHTML
+                .replace('{title}', title)
+                .replace('{message}', message)
+                .replace('{action}', action)
+                .replace('{actionText}', actionText);
+            
+            notification.innerHTML = html;
+            
+            // Play sound if enabled
+            if (localStorage.getItem('notificationSound') !== 'false' && notificationAudio) {
+                setTimeout(() => notificationAudio.play().catch(() => {}), 100);
+            }
+            
+            // Browser notification
+            if ('Notification' in window && Notification.permission === 'granted' && !document.hasFocus()) {
+                new Notification('TinyIOU', {
+                    body: message,
+                    icon: 'https://tinyiou.com/favicon.ico'
+                });
+            }
+            
+            container.appendChild(notification);
+            
+            // Auto-dismiss after 8 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateY(-100px) scale(0.8)';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 8000);
+        }
+
+        async function subscribeToNotifications() {
+            if (!
