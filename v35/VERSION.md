@@ -1,20 +1,21 @@
 # TinyIOU v35
 
-## Version History
-- v35 (Current) - Extracted from _public_html
-- Previous versions in _public_html folder on GitHub
+## Files Included
+- index.html - Main app
+- about.html - About page
+- admin.html - Admin page
+- auth.html - Authentication
+- authlab.html - Auth lab
+- authority.html - Authority page
+- chat.html - Chat interface
+- chatlab.html - Chat lab
+- chatv4.html - Chat v4
+- notifications.html - Notifications page
+- privacy.html - Privacy Policy
+- profile.html - User profile
+- terms.html - Terms of Use
+- handle-autocomplete.js - Autocomplete
+- notifications.js - Notifications
 
-## Files
-- index.html - Main application
-- handle-autocomplete.js - Autocomplete functionality
-- notifications.js - Notifications system
-
-## Tech Stack
-- React 18 (CDN)
-- Tailwind CSS (CDN)
-- Supabase (backend)
-- Phosphor Icons (CDN)
-- Animate.css (CDN)
-
-## Note
-This is the production version extracted from tinyiou.com
+## External CDNs (not included)
+- React 18, Tailwind CSS, Supabase, Phosphor Icons, Google Fonts, Animate.css

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone Final Authority Test</title>
+    <style>
+        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: -apple-system, sans-serif; }
+        .card { width: 100%; max-width: 400px; background: #111; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; text-align: center; }
+        video { width: 100%; border-radius: 10px; background: #222; }
+        button { background: #0052ff; color: #fff; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; margin-top: 10px; width: 100%; }
+        .log { font-size: 10px; color: #666; margin-top: 10px; text-align: left; background: #000; padding: 10px; border-radius: 5px; width: 100%; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h2>iPhone Video Authority</h2>
+
+    <div class="card">
+        <h3>1. Direct MP4 (Short Link)</h3>
+        <video id="v1" autoplay muted loop playsinline 
+               src="https://www.w3schools.com/html/mov_bbb.mp4">
+        </video>
+        <button onclick="document.getElementById('v1').play()">MANUAL PLAY 1</button>
+    </div>
+
+    <div class="card">
+        <h3>2. Your DB WebM (Source Tag)</h3>
+        <video id="v2" autoplay muted loop playsinline x-webkit-airplay="deny">
+            <source src="https://cijsxlylkanxmzkteabg.supabase.co/storage/v1/object/public/iou_images/v_1770497040021.webm" type="video/webm">
+        </video>
+        <button onclick="document.getElementById('v2').play()">MANUAL PLAY 2</button>
+    </div>
+
+    <div id="debug" class="log">Initializing diagnostics...<br></div>
+
+    <script>
+        const log = (msg) => { document.getElementById('debug').innerHTML += msg + "<br>"; };
+        
+        window.onload = () => {
+            const v1 = document.getElementById('v1');
+            const v2 = document.getElementById('v2');
+            
+            log("User Agent: " + navigator.userAgent);
+            
+            v1.play().then(() => log("V1: Autoplay Success"))
+                     .catch(e => log("V1: Autoplay Blocked (" + e.name + ")"));
+            
+            v2.play().then(() => log("V2: Autoplay Success"))
+                     .catch(e => log("V2: Autoplay Blocked (" + e.name + ")"));
+
+            document.body.addEventListener('touchstart', () => {
+                log("Touch detected. Triggering forced ignition...");
+                v1.play(); v2.play();
+            }, {once: true});
+        };
+    </script>
+</body>
+</html>

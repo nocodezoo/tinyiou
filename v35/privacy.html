@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | TinyIOU</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @theme {
+          --color-primary: #f97316;
+          --font-display: 'Outfit', sans-serif;
+          --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+        body { font-family: var(--font-body); color: #0f1419; background: #ffffff; }
+        .hero-text { font-family: var(--font-display); @apply bg-linear-to-br from-[#0f1419] to-primary bg-clip-text text-transparent font-black tracking-tighter uppercase italic; }
+    </style>
+</head>
+<body class="p-6 md:p-20">
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-16">
+            <a href="/" class="flex items-center gap-3 mb-10 no-underline">
+                <div class="w-9 h-9 bg-[#0f1419] rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg">i</div>
+                <span class="font-black text-2xl tracking-tighter uppercase italic text-[#0f1419]">TinyIOU</span>
+            </a>
+            <h1 class="hero-text text-6xl md:text-8xl mb-4">Privacy Policy</h1>
+            <p class="text-gray-400 font-bold uppercase tracking-widest text-sm">Last Updated: March 15, 2024</p>
+        </header>
+
+        <section class="space-y-12 text-lg leading-relaxed text-gray-700">
+            <div>
+                <h2 class="text-3xl font-black mb-4 text-[#0f1419]">1. Data Transmission</h2>
+                <p>We use Supabase for secure authentication and database management. When you join the ledger, we store your email (for access) and your Soul ID. We do not sell your data to third parties. Ever.</p>
+            </div>
+
+            <div>
+                <h2 class="text-3xl font-black mb-4 text-[#0f1419]">2. Visual Backdrops</h2>
+                <p>Images uploaded to the ledger are stored in our secure media buckets. These images are public by nature as part of the Wall feed. Do not upload visuals you wish to remain private.</p>
+            </div>
+
+            <div>
+                <h2 class="text-3xl font-black mb-4 text-[#0f1419]">3. Cookie Usage</h2>
+                <p>We use essential cookies and local storage to keep you logged in and remember your preferences. No tracking pixels. No ad-tech. Purely functional for the ledger's operation.</p>
+            </div>
+
+            <div>
+                <h2 class="text-3xl font-black mb-4 text-[#0f1419]">4. Your Rights</h2>
+                <p>You own your frequency. You can request to export your digital ledger or delete your Soul ID at any time by contacting our resonance team.</p>
+            </div>
+        </section>
+
+        <footer class="mt-32 pt-10 border-t border-gray-100 flex justify-between items-center bg-white">
+            <span class="font-black text-[10px] uppercase tracking-[0.4em] text-gray-400">Build v11.0</span>
+            <a href="/" class="text-orange-500 font-black uppercase text-xs tracking-widest hover:underline">Return to Wall</a>
+        </footer>
+    </div>
+</body>
+</html>

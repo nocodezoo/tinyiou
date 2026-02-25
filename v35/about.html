@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TinyIOU | The Philosophy of Light</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&family=Plus+Jakarta+Sans:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.1/duotone/style.min.css">
+    <style>
+        :root {
+            --primary: #f97316;
+            --bg: #f7f9f9;
+            --text-main: #0f1419;
+        }
+        body { 
+            background-color: white; color: var(--text-main); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-font-smoothing: antialiased; 
+        }
+        .hero-title { font-family: 'Outfit', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(135deg, #0f1419 0%, #f97316 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(249, 115, 22, 0.1);
+        }
+        .step-number { font-family: 'Outfit', sans-serif; }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+    <!-- NAVIGATION (Aligned with Main App) -->
+    <nav class="fixed top-0 left-0 w-full z-[100] px-6 md:px-12 py-6 bg-white/80 backdrop-blur-md border-b border-[#eff3f4] flex justify-between items-center">
+        <div class="flex items-center gap-4 cursor-pointer" onclick="window.location.href='/'">
+            <div class="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg">i</div>
+            <h1 class="text-2xl font-black tracking-tighter text-gray-900 uppercase italic">TinyIOU</h1>
+        </div>
+        <button onclick="window.location.href='/'" class="bg-gray-900 text-white font-black px-8 py-3 rounded-2xl text-xs uppercase tracking-widest hover:bg-orange-600 transition-all">Enter Wall</button>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="pt-40 pb-20 px-8 md:px-24 text-center max-w-7xl mx-auto">
+        <h2 class="hero-title text-6xl md:text-9xl font-black tracking-tighter uppercase leading-[0.85] mb-8 animate__animated animate__fadeInDown">
+            The Social Ledger <br/> <span class="gradient-text">of Light.</span>
+        </h2>
+        <p class="text-xl md:text-3xl text-gray-500 font-medium max-w-3xl mx-auto italic mb-12 animate__animated animate__fadeInUp">
+            TinyIOU is a protocol for human connection. A digital archive for the invisible ripples we create in each other's lives.
+        </p>
+    </section>
+
+    <!-- WHAT IT IS (The Concept) -->
+    <section class="py-20 bg-gray-50 border-y border-gray-100 px-8">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div>
+                <h3 class="text-xs font-black uppercase text-orange-600 tracking-[0.4em] mb-4">The Vision</h3>
+                <h4 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">Beyond Likes & Comments.</h4>
+                <p class="text-lg text-gray-600 leading-relaxed mb-6 font-medium">
+                    Traditional social media measures attention and envy. TinyIOU measures **Presence, Resilience, and Radiance**.
+                </p>
+                <p class="text-lg text-gray-600 leading-relaxed font-medium">
+                    It is a permanent ledger where the smallest acts of kindness, courage, and creative alchemy are memorialized forever. We call these **IOUs**—not as debts to be paid, but as ripples to be acknowledged.
+                </p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass-card p-8 rounded-[2.5rem] shadow-xl animate__animated animate__fadeInRight">
+                    <i class="ph-duotone ph-heart text-5xl text-red-500 mb-4"></i>
+                    <p class="font-black uppercase text-[10px] tracking-widest text-gray-400">Radiance</p>
+                    <p class="text-2xl font-black">Your Output</p>
+                </div>
+                <div class="glass-card p-8 rounded-[2.5rem] shadow-xl animate__animated animate__fadeInRight animate__delay-1s" style="margin-top: 2rem;">
+                    <i class="ph-duotone ph-sparkle text-5xl text-yellow-500 mb-4"></i>
+                    <p class="font-black uppercase text-[10px] tracking-widest text-gray-400">Power</p>
+                    <p class="text-2xl font-black">Your Impact</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS (Infographic) -->
+    <section class="py-32 px-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-20">
+                <h3 class="text-xs font-black uppercase text-orange-600 tracking-[0.4em] mb-4">The Protocol</h3>
+                <h4 class="text-5xl md:text-6xl font-black tracking-tight">How it Works.</h4>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+                <!-- Step 1 -->
+                <div class="relative text-center">
+                    <div class="step-number text-[10rem] font-black text-gray-50 absolute -top-20 left-1/2 -translate-x-1/2 -z-10">01</div>
+                    <div class="w-20 h-20 bg-orange-600 rounded-3xl mx-auto flex items-center justify-center text-white mb-8 shadow-xl">
+                        <i class="ph-bold ph-pencil-simple text-4xl"></i>
+                    </div>
+                    <h5 class="text-2xl font-black mb-4">Memorialize</h5>
+                    <p class="text-gray-500 font-medium px-4">Capture a moment of light. Select one of 25 frequencies—Soul, Time, Alchemy, or Grit—and record the ripple.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="relative text-center">
+                    <div class="step-number text-[10rem] font-black text-gray-50 absolute -top-20 left-1/2 -translate-x-1/2 -z-10">02</div>
+                    <div class="w-20 h-20 bg-gray-900 rounded-3xl mx-auto flex items-center justify-center text-white mb-8 shadow-xl">
+                        <i class="ph-bold ph-video-camera text-4xl"></i>
+                    </div>
+                    <h5 class="text-2xl font-black mb-4">Evidence</h5>
+                    <p class="text-gray-500 font-medium px-4">Attach absolute proof. Upload an image or a 5-second video clip to show the world how light was created.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="relative text-center">
+                    <div class="step-number text-[10rem] font-black text-gray-50 absolute -top-20 left-1/2 -translate-x-1/2 -z-10">03</div>
+                    <div class="w-20 h-20 bg-orange-500 rounded-3xl mx-auto flex items-center justify-center text-white mb-8 shadow-xl">
+                        <i class="ph-bold ph-globe text-4xl"></i>
+                    </div>
+                    <h5 class="text-2xl font-black mb-4">Resonate</h5>
+                    <p class="text-gray-500 font-medium px-4">Commit to the Wall. Watch the collective ledger grow. Others resonate with your message, expanding its Power.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY PEOPLE USE IT -->
+    <section class="py-32 bg-orange-600 text-white px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <h4 class="text-5xl md:text-7xl font-black tracking-tight mb-12 italic uppercase leading-none">Why we build <br/> with light.</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left">
+                <div class="space-y-4">
+                    <p class="text-2xl font-bold uppercase tracking-tighter">True Validation</p>
+                    <p class="text-orange-100 font-medium">It’s not just words. When you post an IOU, you are anchoring a specific frequency of human interaction that matters.</p>
+                </div>
+                <div class="space-y-4">
+                    <p class="text-2xl font-bold uppercase tracking-tighter">Legacy Economy</p>
+                    <p class="text-orange-100 font-medium">Your profile is a dynamic archive of your social impact. Build a ledger that reflects who you truly are to your tribe.</p>
+                </div>
+                <div class="space-y-4">
+                    <p class="text-2xl font-bold uppercase tracking-tighter">High Frequency</p>
+                    <p class="text-orange-100 font-medium">By training our eyes to look for "Light," we change the frequency of our own lives and the communities around us.</p>
+                </div>
+                <div class="space-y-4">
+                    <p class="text-2xl font-bold uppercase tracking-tighter">Privacy Control</p>
+                    <p class="text-orange-100 font-medium">Choose when to shine and when to be invisible. You own your data—you own your radiance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-20 bg-white px-8 text-center border-t border-gray-100">
+        <div class="flex items-center justify-center gap-4 mb-8">
+            <div class="w-12 h-12 bg-orange-600 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg">i</div>
+            <h1 class="text-3xl font-black tracking-tighter text-gray-900 uppercase italic">TinyIOU</h1>
+        </div>
+        <p class="font-black text-[10px] uppercase tracking-[0.4em] text-gray-300">Social Ledger of Light • Build v26.6</p>
+    </footer>
+</body>
+</html>

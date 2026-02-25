@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TinyIOU | Access Realm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.1/duotone/style.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* VERSION 30.59: Composio-inspired FINTECH LOGIN REDESIGN, FINALIZED JS */
+        :root {
+            --primary: #0f1419;
+            --blue: #2f80ed; /* Composio blue */
+            --orange: #f97316;
+            --bg: #f5f7fa; /* Lighter, more subtle background */
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
+            margin: 0;
+            padding: 20px;
+            color: var(--primary);
+        }
+
+        .auth-card {
+            background: white;
+            width: 100%;
+            max-width: 380px; /* Narrower for focused experience */
+            border-radius: 0.75rem; /* Modern, standard radius */
+            padding: 2.5rem; /* Adjusted padding */
+            box-shadow: 0 4px 15px -4px rgba(0,0,0,0.05); /* Very subtle shadow */
+            border: 1px solid #e1e8f0; /* Light, subtle border */
+            position: relative;
+            text-align: center;
+        }
+
+        .logo-mark {
+             display: none; /* Composio's minimal aesthetic. Hide TinyIOU's default 'i' logo */
+        }
+        
+        .title-heading {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700; /* Bold for main headings */
+            font-size: 1.6rem; /* Adjusted font size */
+            color: #2d3748; /* Darker text for headings */
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .subtitle-text {
+            font-size: 0.9rem;
+            color: #718096; /* Muted subtitle text */
+            margin-bottom: 1.5rem; /* More space below subtitle */
+            line-height: 1.5;
+        }
+
+        .input-premium {
+            @apply w-full bg-white border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-2.5 text-left text-base outline-none transition-all;
+        }
+        .input-premium::placeholder {
+            color: #a0aec0; /* Lighter placeholder color */
+        }
+
+        .btn-fintech {
+            @apply w-full py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-98 flex items-center justify-center gap-2 border-none cursor-pointer;
+        }
+        
+        .btn-primary-blue { background: #2f80ed; /* Composio-like blue */ color: white; box-shadow: 0 4px 10px rgba(47,128,237,0.1); } /* Less shadow */
+        .btn-primary-blue:hover { opacity: 0.95; }
+
+        .btn-outline { background: white; border: 1px solid #cbd5e0 !important; color: #4a5568; }
+        .btn-outline:hover { border-color: #2f80ed !important; color: #2f80ed; background: #e8f0fe; }
+        .btn-outline .ph {
+            font-size: 1.1rem;
+        }
+
+        .btn-text-only {
+            @apply bg-transparent border-none text-blue-600 hover:underline cursor-pointer transition-colors;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .divider { @apply flex items-center my-4; }
+        .divider-line { @apply flex-1 h-px bg-gray-200; }
+        .divider-text { @apply px-3 text-xs font-medium text-gray-500 uppercase tracking-wide; }
+
+        .footer-link {
+            font-size: 0.875rem;
+            color: #718096;
+            display: block;
+            margin-top: 1rem;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-link:hover {
+            color: #2f80ed;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect, createElement: h } = React;
+        const client = supabase.createClient('https://cijsxlylkanxmzkteabg.supabase.co', 'sb_publishable_cOcjpEDxsX7EH-5cm0ByxA_OqbizsX4');
+        const REDIRECT_URL = window.location.origin + '/';
+
+        function AuthPortal() {
+            const [mode, setMode] = useState('login'); // login, signup, password-reset
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const handleAuth = async (e) => {
+                if (e) e.preventDefault();
+                setLoading(true);
+                let error;
+                if (mode === 'login') {
+                    ({ error } = await client.auth.signInWithPassword({ email, password }));
+                } else if (mode === 'signup') {
+                    ({ error } = await client.auth.signUp({ email, password }));
+                } else if (mode === 'password-reset') {
+                    ({ error } = await client.auth.resetPasswordForEmail(email));
+                    if (!error) alert("Password reset email sent. Check your inbox.");
+                }
+
+                if (error) {
+                    alert(error.message);
+                } else if (mode !== 'password-reset') {
+                    window.location.href = '/'; // Redirect on successful login/signup
+                }
+                setLoading(false);
+            };
+
+            const handleMagicLink = async () => {
+                const em = prompt("Verification email will be sent to:");
+                if (!em) return;
+                setLoading(true);
+                const { error } = await client.auth.signInWithOtp({ 
+                    email: em, 
+                    options: { emailRedirectTo: REDIRECT_URL } 
+                });
+                if (error) alert(error.message);
+                else alert("Magic Link Dispatched. Check your inbox.");
+                setLoading(false);
+            };
+
+            const loginGoogle = () => {
+                client.auth.signInWithOAuth({ 
+                    provider: 'google', 
+                    options: { 
+                        redirectTo: REDIRECT_URL, 
+                        queryParams: { prompt: 'select_account' } /* Always prompt user for account selection */
+                    } 
+                });
+            };
+
+            return h('div', { className: "auth-card animate__animated animate__fadeIn" }, [
+                /* Main Title and Subtitle */
+                h('h1', { className: "title-heading" }, mode === 'login' ? 'Sign in to your account' : (mode === 'signup' ? `Create a new account` : `Reset your password`)),
+                h('p', { className: "subtitle-text" }, mode === 'login' ? `Welcome back! Please enter your details.` : (mode === 'signup' ?  `Let's get you started. Enter your details to create an account.` : `Enter your email to receive a password reset link.`)),
+                
+                /* Google Auth Button */
+                h('button', { onClick: loginGoogle, className: "btn-fintech btn-outline mb-4" }, [
+                    h('i', {className: 'ph-fill ph-google-logo text-lg text-red-500'}),
+                    "Continue with Google"
+                ]),
+
+                /* Divider */
+                h('div', {className: 'divider'}, [
+                    h('div', {className: 'divider-line'}),
+                    h('span', {className: 'divider-text'}, 'Or'),
+                    h('div', {className: 'divider-line'})
+                ]),
+
+                /* Email/Password Form */
+                h('form', { onSubmit: handleAuth, className: 'space-y-3' }, [
+                    h('input', { className: "input-premium", type: "email", placeholder: "Email", value: email, onChange: e => setEmail(e.target.value), required: true }),
+                    (mode === 'login' || mode === 'signup') && h('input', { className: "input-premium", type: "password", placeholder: mode === 'login' ? "Password" : "Create Password", value: password, onChange: e => setPassword(e.target.value), required: true }),
+                    h('button', { type: "submit", className: "btn-fintech btn-primary-blue mt-4", disabled: loading }, 
+                        loading ? 'Loading...' : (mode === 'login' ? 'Sign In' : (mode === 'signup' ? 'Sign Up' : 'Send Reset Link'))
+                    ),
+                ]),
+
+                /* Alternative Auth Options */
+                h('div', {className: 'flex flex-col gap-2 mt-4'}, [
+                    h('button', { onClick: handleMagicLink, className: "btn-fintech btn-text-only" }, [
+                        "Sign in with Magic Link"
+                    ]),
+                ]),
+
+                /* Footer Links */
+                h('div', {className: 'flex flex-col items-center mt-6'}, [
+                    mode === 'login' && h('button', { type: 'button', onClick: () => setMode('signup'), className: 'footer-link' }, `Don\'t have an account? Sign up`),
+                    mode === 'signup' && h('button', { type: 'button', onClick: () => setMode('login'), className: 'footer-link' }, `Already have an account? Sign in`),
+                    mode === 'login' && h('button', { type: 'button', onClick: () => setMode('password-reset'), className: 'footer-link' }, `Forgot your password?`),
+                    mode === 'password-reset' && h('button', { type: 'button', onClick: () => setMode('login'), className: 'footer-link' }, `Back to sign in`),
+                    h('button', { type: 'button', onClick: () => window.location.href='/', className: 'footer-link mt-2' }, "Return to homepage")
+                ])
+            ]);
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(h(AuthPortal));
+    </script>
+</body>
+</html>
