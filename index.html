@@ -118,6 +118,41 @@
 
     <script>
         const { useState, useEffect, useRef, createElement: h } = React;
+        
+        // Content Polish Function - transforms raw input into polished display
+        function polishContent(text) {
+            if (!text || typeof text !== 'string') return '';
+            let cleaned = text.trim();
+            
+            // Filter out super short garbage
+            if (cleaned.length < 8 && !cleaned.includes(' ')) return '';
+            
+            // Common misspellings fix
+            const misspellings = {
+                'remeber': 'remember', 'rember': 'remember', 'lemeb er': 'remember',
+                'thier': 'their', 'teh': 'the', 'loe': 'love', 'luv': 'love',
+                'bra': 'bro', 'yah': 'yeah', 'ya': 'you', 'u ': 'you ',
+                'gonna': 'going to', 'wanna': 'want to', 'gotta': 'got to',
+                'totally!': 'totally.', 'awesome!': 'awesome.', 'cool!': 'cool.',
+                'thanks...': 'thanks.', '  ': ' '
+            };
+            const lower = cleaned.toLowerCase();
+            for (const [bad, good] of Object.entries(misspellings)) {
+                if (lower.includes(bad)) {
+                    cleaned = cleaned.replace(new RegExp(bad, 'gi'), good);
+                }
+            }
+            
+            // Capitalize first letter
+            cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+            
+            // Add period if missing
+            if (cleaned.length > 0 && !cleaned.endsWith('.') && !cleaned.endsWith('!') && !cleaned.endsWith('?') && !cleaned.endsWith('"')) {
+                cleaned += '.';
+            }
+            
+            return cleaned;
+        }
         const SUPABASE_URL = 'https://cijsxlylkanxmzkteabg.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_cOcjpEDxsX7EH-5cm0ByxA_OqbizsX4';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -288,7 +323,7 @@
                         h('a', { href: "/privacy.html#ccpa", className: "hover:text-primary transition-colors" }, "CCPA"),
                         h('button', { onClick: () => { localStorage.removeItem('tinyiou_consentv221'); setShowCookieBanner(true); }, className: "hover:text-primary border-none bg-transparent font-black tracking-widest text-gray-300 uppercase cursor-pointer" }, "Cookies")
                     ),
-                    h('span', { className: "font-black text-[10px] uppercase tracking-[0.4em] text-gray-300" }, "Build v30.57 • GDPR/CCPA Compliant")
+                    h('span', { className: "font-black text-[10px] uppercase tracking-[0.4em] text-gray-300" }, "Build v30.58 • Content Polished")
                 )
             );
         }
@@ -318,7 +353,7 @@
             const rCount = iou.ripples?.[0]?.count || 0;
             const userMedia = iou.media_urls?.find(u => u && u.toString().startsWith('http'));
             let displayTaxonomy = iou.taxonomy || 'EMOTIONAL';
-            let cleanNarrative = iou.narrative || '';
+            let cleanNarrative = polishContent(iou.narrative);
             
             // Try to extract taxonomy from narrative (format: "TAXONOMY | message")
             if (cleanNarrative.includes(" | ")) {
