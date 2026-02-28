@@ -353,7 +353,7 @@
             const rCount = iou.ripples?.[0]?.count || 0;
             const userMedia = iou.media_urls?.find(u => u && u.toString().startsWith('http'));
             let displayTaxonomy = iou.taxonomy || 'EMOTIONAL';
-            let cleanNarrative = polishContent(iou.narrative);
+            let cleanNarrative = polishContent(iou.content);
             
             // Try to extract taxonomy from narrative (format: "TAXONOMY | message")
             if (cleanNarrative.includes(" | ")) {
