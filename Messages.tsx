@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
 import { Message, Profile } from '../types'
-import { Send, Bell, AlertCircle } from 'lucide-react'
+import { Send, MessageCircle, AlertCircle } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 const EMOJI_PICKER = ['🕊️', '✨', '🧡', '🌱', '🧠', '⛵']
@@ -62,7 +62,7 @@ export default function Messages() {
     const ch = supabase.channel('mr').on('postgres_changes', {
       event: 'INSERT', schema: 'public', table: 'messages',
       filter: `or(sender_id.eq.${user.id},receiver_id.eq.${user.id})`
-    }, () => { if (selectedUser) loadMessages(); loadRecentChats(); }).subscribe()
+    }, () => { loadMessages(); loadRecentChats(); }).subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [user, selectedUser?.id])
 
@@ -145,7 +145,7 @@ export default function Messages() {
       {/* Header - Alerts style */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center">
-          <Bell className="w-6 h-6 text-white" />
+          <MessageCircle className="w-6 h-6 text-white" />
         </div>
         <div>
           <h1 className="text-3xl font-black text-white">Resonance</h1>
@@ -175,29 +175,6 @@ export default function Messages() {
       )}
 
       <div className="flex gap-4 md:gap-6 h-[60vh]">
-        {/* Chat List - Dark */}
-        <div className="hidden md:flex w-48 md:w-56 flex-shrink-0 bg-zinc-800 rounded-2xl p-3 space-y-2 overflow-y-auto">
-          {chatUsers.length === 0 ? (
-            <p className="text-zinc-500 text-sm p-2">No conversations yet</p>
-          ) : (
-            chatUsers.map(u => (
-              <button 
-                key={u.id} 
-                onClick={() => setSelectedUser(u)} 
-                className={cn(
-                  'w-full p-2 rounded-xl flex items-center gap-2 transition-colors text-left',
-                  selectedUser?.id === u.id ? 'bg-orange-500/20' : 'hover:bg-zinc-700'
-                )}
-              >
-                <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                  <span className="text-orange-400 font-bold text-sm">{u.username?.[0]?.toUpperCase()}</span>
-                </div>
-                <span className="text-zinc-300 text-sm font-medium truncate">@{u.username}</span>
-              </button>
-            ))
-          )}
-        </div>
-
         {/* Chat Window - Dark */}
         <div className="flex-1 bg-zinc-800 rounded-2xl flex flex-col overflow-hidden">
           {selectedUser ? (

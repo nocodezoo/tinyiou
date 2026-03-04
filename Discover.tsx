@@ -63,10 +63,15 @@ export default function Discover() {
   return (
     <div className="min-h-screen bg-black">
       <div className="max-w-md mx-auto px-4 py-6">
-        <div className="flex items-center gap-2 mb-6">
-          <Compass className="w-6 h-6 text-orange-500" />
-          <h1 className="text-xl font-black text-white">Discover</h1>
+        <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center">
+          <Compass className="w-6 h-6 text-white" />
         </div>
+        <div>
+          <h1 className="text-3xl font-black text-white">Discover</h1>
+          <p className="text-zinc-500 text-sm">Find and honor others</p>
+        </div>
+      </div>
 
         <div className="relative mb-4">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
